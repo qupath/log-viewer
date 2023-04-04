@@ -1,0 +1,15 @@
+/*
+ * Gradle settings.
+ */
+
+rootProject.name = 'demo-javafx-control'
+
+dependencyResolutionManagement {
+
+    repositories {
+
+        // Use Maven Central for dependencies
+        mavenCentral()
+
+    }
+}
