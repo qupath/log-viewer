@@ -25,3 +25,11 @@
     -fx-fill: gold;
 }
 
+.table-cell {
+    -fx-alignment: center;
+}
+
+.col-message.table-cell {
+    -fx-alignment: center-left;
+}
+

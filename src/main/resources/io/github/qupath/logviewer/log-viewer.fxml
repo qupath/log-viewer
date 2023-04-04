@@ -40,10 +40,10 @@
          <items>
             <TableView fx:id="tableViewLog" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true">
               <columns>
-                <TableColumn fx:id="colRow" editable="false" prefWidth="30.0" sortable="false" text="#" />
-                  <TableColumn fx:id="colLevel" editable="false" prefWidth="60.0" sortable="false" text="Level" />
-                <TableColumn fx:id="colTimestamp" editable="false" prefWidth="90.0" sortable="false" text="Time" />
-                  <TableColumn fx:id="colMessage" editable="false" maxWidth="1.7976931348623157E308" prefWidth="404.0" sortable="false" text="Message" />
+                <TableColumn fx:id="colRow" editable="false" maxWidth="30.0" prefWidth="30.0" sortable="false" styleClass="col-row" text="#" />
+                  <TableColumn fx:id="colLevel" editable="false" maxWidth="60.0" prefWidth="60.0" sortable="false" styleClass="col-level" text="Level" />
+                <TableColumn fx:id="colTimestamp" editable="false" maxWidth="90.0" prefWidth="90.0" sortable="false" styleClass="col-time" text="Time" />
+                  <TableColumn fx:id="colMessage" editable="false" maxWidth="1.7976931348623157E308" prefWidth="404.0" sortable="false" styleClass="col-message" text="Message" />
               </columns>
             </TableView>
             <TextArea fx:id="textAreaLog" prefHeight="200.0" prefWidth="200.0" />

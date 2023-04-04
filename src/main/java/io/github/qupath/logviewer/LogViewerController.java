@@ -42,6 +42,8 @@ public class LogViewerController {
         tableViewLog.getSelectionModel().selectedItemProperty().addListener(this::handleLogMessageSelectionChange);
         tableViewLog.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
+        tableViewLog.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+
         colRow.setCellValueFactory(LogViewerController::tableRowCellFactory);
         colRow.setCellFactory(column -> new TableRowTableCell());
 

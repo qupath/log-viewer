@@ -35,7 +35,6 @@ class LogLabelTableCell extends TableCell<LogMessage, LogLevel> {
             setText(item.toString());
             setGraphic(icon);
             icon.getStyleClass().setAll("log-level", item.toString().toLowerCase());
-            System.err.println(icon.getStyleClass());
         }
     }
 }
