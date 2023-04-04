@@ -1,4 +1,4 @@
-package io.github.qupath.javafx;
+package io.github.qupath.logviewer;
 
 public record LogMessage(long timestamp, LogLevel level, String message) {
 

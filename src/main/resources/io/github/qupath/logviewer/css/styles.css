@@ -1,0 +1,27 @@
+.log-level.info {
+    -fx-fill: none;
+}
+
+.log-level.debug {
+    /*-fx-stroke: cornflowerblue;*/
+    /*-fx-stroke-width: 2;*/
+    /*-fx-stroke-type: inside;*/
+    /*-fx-fill: none;*/
+    -fx-fill: cornflowerblue;
+}
+
+.log-level.trace {
+    -fx-stroke: darkgray;
+    -fx-stroke-width: 2;
+    -fx-stroke-type: inside;
+    -fx-fill: none;
+}
+
+.log-level.error {
+    -fx-fill: crimson;
+}
+
+.log-level.warn {
+    -fx-fill: gold;
+}
+

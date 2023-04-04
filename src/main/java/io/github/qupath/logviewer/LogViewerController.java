@@ -1,4 +1,4 @@
-package io.github.qupath.javafx;
+package io.github.qupath.logviewer;
 
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
@@ -26,16 +26,19 @@ public class LogViewerController {
     @FXML
     private TableColumn<LogMessage, String> colTimestamp;
     @FXML
-    private TableColumn<LogMessage, String> colLevel;
+    private TableColumn<LogMessage, LogLevel> colLevel;
     @FXML
     private TableColumn<LogMessage, String> colMessage;
 
     @FXML
     private TextArea textAreaLog;
 
+    private ObjectProperty<ContentDisplay> logLevelContentDisplay = new SimpleObjectProperty<>(ContentDisplay.GRAPHIC_ONLY);
+
 
     @FXML
     public void initialize() {
+
         tableViewLog.getSelectionModel().selectedItemProperty().addListener(this::handleLogMessageSelectionChange);
         tableViewLog.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
@@ -45,6 +48,7 @@ public class LogViewerController {
         colTimestamp.setCellValueFactory(LogViewerController::timestampStringCellFactory);
 
         colLevel.setCellValueFactory(LogViewerController::logLevelCellFactory);
+        colLevel.setCellFactory(column -> new LogLabelTableCell(logLevelContentDisplay));
         colMessage.setCellValueFactory(LogViewerController::logMessageCellFactory);
     }
 
@@ -62,7 +66,7 @@ public class LogViewerController {
         for (LogMessage message : tableViewLog.getSelectionModel().getSelectedItems()) {
             boolean firstVisibleColumnInRow = true;
             for (TableColumn<LogMessage, ?> column : tableViewLog.getColumns()) {
-                if (column.isVisible()) {
+                if (column.isVisible() && !"#".equals(column.getText())) {
                     if (!firstVisibleColumnInRow)
                         sb.append(delimiter);
                     firstVisibleColumnInRow = false;
@@ -91,13 +95,10 @@ public class LogViewerController {
             return new SimpleStringProperty(TIMESTAMP_FORMAT.format(new Date(timestamp.longValue())));
     }
 
-    private static StringProperty logLevelCellFactory(TableColumn.CellDataFeatures<LogMessage, String> cellData) {
+    private static ObjectProperty<LogLevel> logLevelCellFactory(TableColumn.CellDataFeatures<LogMessage, LogLevel> cellData) {
         var logMessage = cellData.getValue();
         var logLevel = logMessage == null ? null : logMessage.level();
-        if (logLevel == null)
-            return new SimpleStringProperty("");
-        else
-            return new SimpleStringProperty(logLevel.toString());
+        return new SimpleObjectProperty<>(logLevel);
     }
 
     private static StringProperty logMessageCellFactory(TableColumn.CellDataFeatures<LogMessage, String> cellData) {
@@ -117,18 +118,6 @@ public class LogViewerController {
             textAreaLog.setText(newValue.message());
         } else {
             textAreaLog.setText("");
-        }
-    }
-
-    private static class TableRowTableCell extends TableCell<LogMessage, LogMessage> {
-        @Override
-        protected void updateItem(LogMessage item, boolean empty) {
-            super.updateItem(item, empty);
-            if (empty || item == null) {
-                setText("");
-            } else {
-                setText(Integer.toString(getTableRow().getIndex() + 1));
-            }
         }
     }
 

@@ -48,7 +48,7 @@ javafx {
 
 application {
     mainModule = 'demo'
-    mainClass = 'io.github.qupath.javafx.MainApp'
+    mainClass = 'io.github.qupath.logviewer.LogViewerApp'
 }
 
 tasks.named('test') {

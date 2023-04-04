@@ -10,7 +10,7 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.qupath.javafx.LogViewerController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.qupath.logviewer.LogViewerController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -40,9 +40,9 @@
          <items>
             <TableView fx:id="tableViewLog" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true">
               <columns>
-                <TableColumn fx:id="colRow" editable="false" prefWidth="50.0" sortable="false" text="Row" />
+                <TableColumn fx:id="colRow" editable="false" prefWidth="30.0" sortable="false" text="#" />
+                  <TableColumn fx:id="colLevel" editable="false" prefWidth="60.0" sortable="false" text="Level" />
                 <TableColumn fx:id="colTimestamp" editable="false" prefWidth="90.0" sortable="false" text="Time" />
-                  <TableColumn fx:id="colLevel" editable="false" sortable="false" text="Level" />
                   <TableColumn fx:id="colMessage" editable="false" maxWidth="1.7976931348623157E308" prefWidth="404.0" sortable="false" text="Message" />
               </columns>
             </TableView>

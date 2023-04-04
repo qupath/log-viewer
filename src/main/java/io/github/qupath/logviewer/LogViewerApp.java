@@ -1,4 +1,4 @@
-package io.github.qupath.javafx;
+package io.github.qupath.logviewer;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -22,7 +22,7 @@ public class LogViewerApp extends Application {
             System.exit(-1);
         }
 
-        ResourceBundle resources = ResourceBundle.getBundle("io.github.qupath.javafx.strings");
+        ResourceBundle resources = ResourceBundle.getBundle("io.github.qupath.logviewer.strings");
 
         FXMLLoader loader = new FXMLLoader(url, resources);
         loader.load();
@@ -30,6 +30,9 @@ public class LogViewerApp extends Application {
         Parent root = loader.getRoot();
 
         Scene scene = new Scene(root);
+
+        String stylesheet = getClass().getResource("css/styles.css").toExternalForm();
+        scene.getStylesheets().add(stylesheet);
 
         primaryStage.setTitle(resources.getString("title"));
         primaryStage.setScene(scene);
