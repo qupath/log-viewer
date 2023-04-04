@@ -9,6 +9,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,11 +35,16 @@ public class LogViewerController {
     @FXML
     private TextArea textAreaLog;
 
+    @FXML
+    private HBox spacer;
+
     private ObjectProperty<ContentDisplay> logLevelContentDisplay = new SimpleObjectProperty<>(ContentDisplay.GRAPHIC_ONLY);
 
 
     @FXML
     public void initialize() {
+
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
         tableViewLog.getSelectionModel().selectedItemProperty().addListener(this::handleLogMessageSelectionChange);
         tableViewLog.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
