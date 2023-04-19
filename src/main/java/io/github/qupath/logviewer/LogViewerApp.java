@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,16 @@ public class LogViewerApp extends Application {
         Platform.runLater(() -> logRandomMessages(1000));
         logRandomMessages(1000);
         logger.warn("Here's a final message. With a warning.");
+
+        scene.addEventHandler(MouseEvent.ANY, LogViewerApp::logMouseEvent);
+    }
+
+    private static void logMouseEvent(MouseEvent event) {
+        if (event.getEventType() == MouseEvent.MOUSE_MOVED || event.getEventType() == MouseEvent.MOUSE_DRAGGED) {
+//            logger.trace("Mouse event: {} at ({}, {})", event.getEventType(), event.getX(), event.getY());
+            return;
+        }
+        logger.info("Mouse event: {} at ({}, {})", event.getEventType(), event.getX(), event.getY());
     }
 
     private static void logRandomMessages(int maxMessages) {

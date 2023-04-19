@@ -28,6 +28,8 @@ public class LogViewerController {
     @FXML
     private TableColumn<LogMessage, LogMessage> colRow;
     @FXML
+    private TableColumn<LogMessage, String> colLogger;
+    @FXML
     private TableColumn<LogMessage, String> colTimestamp;
     @FXML
     private TableColumn<LogMessage, String> colThread;
@@ -58,13 +60,20 @@ public class LogViewerController {
         colRow.setCellValueFactory(LogViewerController::tableRowCellFactory);
         colRow.setCellFactory(column -> new TableRowTableCell());
 
-        colTimestamp.setCellValueFactory(LogViewerController::timestampStringCellFactory);
+        colLogger.setCellValueFactory(LogViewerController::loggerStringValueFactory);
+        colLogger.setCellFactory(column -> {
+            var cell = (TableCell<LogMessage, String>)TableColumn.DEFAULT_CELL_FACTORY.call(column);
+            cell.setTextOverrun(OverrunStyle.LEADING_WORD_ELLIPSIS);
+            return cell;
+        });
 
-        colThread.setCellValueFactory(LogViewerController::threadStringCellFactory);
+        colTimestamp.setCellValueFactory(LogViewerController::timestampStringValueFactory);
+        colThread.setCellValueFactory(LogViewerController::threadStringValueFactory);
 
-        colLevel.setCellValueFactory(LogViewerController::logLevelCellFactory);
+        colLevel.setCellValueFactory(LogViewerController::logLevelValueFactory);
         colLevel.setCellFactory(column -> new LogLabelTableCell(logLevelContentDisplay));
-        colMessage.setCellValueFactory(LogViewerController::logMessageCellFactory);
+
+        colMessage.setCellValueFactory(LogViewerController::logMessageValueFactory);
     }
 
     public void copySelectedLines() {
@@ -101,16 +110,19 @@ public class LogViewerController {
         return new SimpleObjectProperty<>(cellData.getValue());
     }
 
-    private static StringProperty threadStringCellFactory(TableColumn.CellDataFeatures<LogMessage, String> cellData) {
+    private static StringProperty loggerStringValueFactory(TableColumn.CellDataFeatures<LogMessage, String> cellData) {
         var logMessage = cellData.getValue();
-        var threadName = logMessage == null ? null : logMessage.threadName();
-        if (threadName == null)
-            return new SimpleStringProperty("");
-        else
-            return new SimpleStringProperty(threadName);
+        var threadName = logMessage == null ? null : logMessage.loggerName();
+        return new SimpleStringProperty(threadName);
     }
 
-    private static StringProperty timestampStringCellFactory(TableColumn.CellDataFeatures<LogMessage, String> cellData) {
+    private static StringProperty threadStringValueFactory(TableColumn.CellDataFeatures<LogMessage, String> cellData) {
+        var logMessage = cellData.getValue();
+        var threadName = logMessage == null ? null : logMessage.threadName();
+        return new SimpleStringProperty(threadName);
+    }
+
+    private static StringProperty timestampStringValueFactory(TableColumn.CellDataFeatures<LogMessage, String> cellData) {
         var logMessage = cellData.getValue();
         var timestamp = logMessage == null ? null : logMessage.timestamp();
         if (timestamp == null)
@@ -119,13 +131,14 @@ public class LogViewerController {
             return new SimpleStringProperty(TIMESTAMP_FORMAT.format(new Date(timestamp.longValue())));
     }
 
-    private static ObjectProperty<Level> logLevelCellFactory(TableColumn.CellDataFeatures<LogMessage, Level> cellData) {
+
+    private static ObjectProperty<Level> logLevelValueFactory(TableColumn.CellDataFeatures<LogMessage, Level> cellData) {
         var logMessage = cellData.getValue();
         var logLevel = logMessage == null ? null : logMessage.level();
         return new SimpleObjectProperty<>(logLevel);
     }
 
-    private static StringProperty logMessageCellFactory(TableColumn.CellDataFeatures<LogMessage, String> cellData) {
+    private static StringProperty logMessageValueFactory(TableColumn.CellDataFeatures<LogMessage, String> cellData) {
         var logMessage = cellData.getValue();
         if (logMessage == null)
             return new SimpleStringProperty("");

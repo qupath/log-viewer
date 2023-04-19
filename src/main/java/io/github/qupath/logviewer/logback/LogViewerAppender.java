@@ -1,6 +1,7 @@
 package io.github.qupath.logviewer.logback;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.core.AppenderBase;
 import io.github.qupath.logviewer.LogMessage;
 import io.github.qupath.logviewer.LogViewerController;
@@ -19,11 +20,14 @@ public class LogViewerAppender extends AppenderBase<ILoggingEvent> {
     @Override
     protected void append(ILoggingEvent eventObject) {
         try {
+
             var message = new LogMessage(
+                    eventObject.getLoggerName(),
                     eventObject.getTimeStamp(),
                     eventObject.getThreadName(),
                     toSlf4JLevel(eventObject.getLevel()),
-                    eventObject.getFormattedMessage()
+                    eventObject.getFormattedMessage(),
+                    null
             );
             controller.addLogMessage(message);
         } catch (Exception e) {
