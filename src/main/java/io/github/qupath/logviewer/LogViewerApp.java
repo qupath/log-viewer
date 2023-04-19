@@ -1,15 +1,25 @@
 package io.github.qupath.logviewer;
 
+import io.github.qupath.logviewer.logback.LogbackManager;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
 
 public class LogViewerApp extends Application {
+
+    private final static Logger logger = LoggerFactory.getLogger(LogViewerApp.class);
+
     public static void main(String[] args) {
         Application.launch(LogViewerApp.class, args);
     }
@@ -38,14 +48,25 @@ public class LogViewerApp extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        LogLevel[] allLogLevels = LogLevel.values();
-        Random random = new Random(100L);
-        for (int i = 0; i < 100; i++) {
-            LogLevel logType = allLogLevels[random.nextInt(allLogLevels.length)];
-            LogMessage message = new LogMessage(System.currentTimeMillis(), logType, "This is a test message " + i);
-            controller.addLogMessage(message);
-            Thread.sleep(2);
-        }
+        var manager = new LogbackManager();
+        manager.addAppender(controller);
+        logger.info("Here's my first log message, for information");
+        Platform.runLater(() -> logRandomMessages(1000));
+        logRandomMessages(1000);
+        logger.warn("Here's a final message. With a warning.");
+    }
 
+    private static void logRandomMessages(int maxMessages) {
+        IntStream.range(0, maxMessages)
+                .parallel()
+                .forEach(LogViewerApp::logSingleRandomMessage);
+    }
+
+    private static void logSingleRandomMessage(int index) {
+        Level[] allLogLevels = Level.values();
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        Level level = allLogLevels[random.nextInt(allLogLevels.length)];
+        logger.atLevel(level)
+                .log("This is a test message {}", index);
     }
 }

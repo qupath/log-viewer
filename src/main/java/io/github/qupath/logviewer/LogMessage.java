@@ -1,5 +1,7 @@
 package io.github.qupath.logviewer;
 
-public record LogMessage(long timestamp, LogLevel level, String message) {
+import org.slf4j.event.Level;
+
+public record LogMessage(long timestamp, String threadName, Level level, String message) {
 
 }

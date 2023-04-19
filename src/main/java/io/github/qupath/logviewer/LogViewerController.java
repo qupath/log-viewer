@@ -1,5 +1,6 @@
 package io.github.qupath.logviewer;
 
+import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -11,6 +12,7 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import org.slf4j.event.Level;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -28,7 +30,9 @@ public class LogViewerController {
     @FXML
     private TableColumn<LogMessage, String> colTimestamp;
     @FXML
-    private TableColumn<LogMessage, LogLevel> colLevel;
+    private TableColumn<LogMessage, String> colThread;
+    @FXML
+    private TableColumn<LogMessage, Level> colLevel;
     @FXML
     private TableColumn<LogMessage, String> colMessage;
 
@@ -55,6 +59,8 @@ public class LogViewerController {
         colRow.setCellFactory(column -> new TableRowTableCell());
 
         colTimestamp.setCellValueFactory(LogViewerController::timestampStringCellFactory);
+
+        colThread.setCellValueFactory(LogViewerController::threadStringCellFactory);
 
         colLevel.setCellValueFactory(LogViewerController::logLevelCellFactory);
         colLevel.setCellFactory(column -> new LogLabelTableCell(logLevelContentDisplay));
@@ -95,6 +101,15 @@ public class LogViewerController {
         return new SimpleObjectProperty<>(cellData.getValue());
     }
 
+    private static StringProperty threadStringCellFactory(TableColumn.CellDataFeatures<LogMessage, String> cellData) {
+        var logMessage = cellData.getValue();
+        var threadName = logMessage == null ? null : logMessage.threadName();
+        if (threadName == null)
+            return new SimpleStringProperty("");
+        else
+            return new SimpleStringProperty(threadName);
+    }
+
     private static StringProperty timestampStringCellFactory(TableColumn.CellDataFeatures<LogMessage, String> cellData) {
         var logMessage = cellData.getValue();
         var timestamp = logMessage == null ? null : logMessage.timestamp();
@@ -104,7 +119,7 @@ public class LogViewerController {
             return new SimpleStringProperty(TIMESTAMP_FORMAT.format(new Date(timestamp.longValue())));
     }
 
-    private static ObjectProperty<LogLevel> logLevelCellFactory(TableColumn.CellDataFeatures<LogMessage, LogLevel> cellData) {
+    private static ObjectProperty<Level> logLevelCellFactory(TableColumn.CellDataFeatures<LogMessage, Level> cellData) {
         var logMessage = cellData.getValue();
         var logLevel = logMessage == null ? null : logMessage.level();
         return new SimpleObjectProperty<>(logLevel);
@@ -119,7 +134,11 @@ public class LogViewerController {
     }
 
     public void addLogMessage(LogMessage logMessage) {
-        tableViewLog.getItems().add(logMessage);
+        if (Platform.isFxApplicationThread()) {
+            tableViewLog.getItems().add(logMessage);
+        } else {
+            Platform.runLater(() -> addLogMessage(logMessage));
+        }
     }
 
     private void handleLogMessageSelectionChange(Observable observable, LogMessage oldValue, LogMessage newValue) {

@@ -6,8 +6,9 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.Tooltip;
 import javafx.scene.shape.Circle;
+import org.slf4j.event.Level;
 
-class LogLabelTableCell extends TableCell<LogMessage, LogLevel> {
+class LogLabelTableCell extends TableCell<LogMessage, Level> {
 
     private Tooltip tooltip = new Tooltip();
     private Circle icon = new Circle(5.0);
@@ -23,7 +24,7 @@ class LogLabelTableCell extends TableCell<LogMessage, LogLevel> {
     }
 
     @Override
-    protected void updateItem(LogLevel item, boolean empty) {
+    protected void updateItem(Level item, boolean empty) {
         super.updateItem(item, empty);
         if (empty || item == null) {
             setText("");
