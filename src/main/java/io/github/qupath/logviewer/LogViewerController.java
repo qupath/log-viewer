@@ -2,10 +2,9 @@ package io.github.qupath.logviewer;
 
 import javafx.application.Platform;
 import javafx.beans.Observable;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.*;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
@@ -16,7 +15,11 @@ import org.slf4j.event.Level;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import static org.slf4j.event.EventConstants.*;
 
 public class LogViewerController {
 
@@ -44,11 +47,45 @@ public class LogViewerController {
     @FXML
     private HBox spacer;
 
+    @FXML
+    private Label itemCounter;
+
     private ObjectProperty<ContentDisplay> logLevelContentDisplay = new SimpleObjectProperty<>(ContentDisplay.GRAPHIC_ONLY);
 
+    private IntegerProperty nWarnings = new SimpleIntegerProperty(0), nErrors = new SimpleIntegerProperty(0);
 
     @FXML
     public void initialize() {
+        tableViewLog.getItems().addListener(new ListChangeListener<LogMessage>() {
+            @Override
+            public void onChanged(Change<? extends LogMessage> c) {
+                List<? extends LogMessage> changeList = new ArrayList<>();
+                int increment = 1;
+                while (c.next()) {
+                    if (c.wasAdded()) {
+                        changeList = c.getAddedSubList();
+                    } else {
+                        changeList = c.getRemoved();
+                        increment = -1;
+                    }
+                }
+                for (LogMessage item: changeList) {
+                    if (item.level() == Level.ERROR) {
+                        nErrors.set(nErrors.getValue() + increment);
+                    } else if (item.level() == Level.WARN) {
+                        nWarnings.set(nWarnings.getValue() + increment);
+                    }
+                }
+            }
+        });
+
+        StringProperty itemCounterProperty = new SimpleStringProperty();
+        itemCounterProperty.bind(Bindings.concat(
+                nWarnings.asString(), " warnings, ", nErrors.asString(), " errors"
+                )
+        );
+        itemCounter.textProperty().bind(itemCounterProperty);
+
 
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
