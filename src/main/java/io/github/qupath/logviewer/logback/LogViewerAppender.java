@@ -20,7 +20,6 @@ public class LogViewerAppender extends AppenderBase<ILoggingEvent> {
     @Override
     protected void append(ILoggingEvent eventObject) {
         try {
-
             var message = new LogMessage(
                     eventObject.getLoggerName(),
                     eventObject.getTimeStamp(),

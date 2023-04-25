@@ -40,7 +40,7 @@
             <ToolBar maxWidth="1.7976931348623157E308" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <items>
                   <HBox fx:id="spacer" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" prefHeight="29.0" prefWidth="10.0" />
-                  <TextField prefColumnCount="16" promptText="Filter text" />
+                  <TextField fx:id="messageFilter" prefColumnCount="16" promptText="Filter text" />
                </items>
             </ToolBar>
          </top>
@@ -63,6 +63,7 @@
                   </MenuItem>
             </items>
           </Menu>
+            <Menu fx:id="filterMenu" mnemonicParsing="false" text="Filter" />
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />

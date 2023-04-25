@@ -10,12 +10,8 @@ import org.slf4j.event.Level;
 
 class LogLabelTableCell extends TableCell<LogMessage, Level> {
 
-    private Tooltip tooltip = new Tooltip();
-    private Circle icon = new Circle(5.0);
-
-    public LogLabelTableCell() {
-        this(null);
-    }
+    private final Tooltip tooltip = new Tooltip();
+    private final Circle icon = new Circle(5.0);
 
     public LogLabelTableCell(ObservableObjectValue<ContentDisplay> contentDisplay) {
         if (contentDisplay != null)

@@ -11,8 +11,6 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
-
-import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
@@ -37,7 +35,7 @@ public class LogViewerApp extends Application {
 
         FXMLLoader loader = new FXMLLoader(url, resources);
         loader.load();
-        LogViewerController controller = loader.getController();
+
         Parent root = loader.getRoot();
 
         Scene scene = new Scene(root);
@@ -49,7 +47,9 @@ public class LogViewerApp extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        LogViewerController controller = loader.getController();
         var manager = new LogbackManager();
+        manager.SetLogLevel(Level.TRACE);
         manager.addAppender(controller);
         logger.info("Here's my first log message, for information");
         Platform.runLater(() -> logRandomMessages(1000));

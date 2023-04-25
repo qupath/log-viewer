@@ -6,25 +6,34 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class LogViewerController {
-
     private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(System.getProperty("timestamp.format", "HH:mm:ss"));
+    private final static Logger logger = LoggerFactory.getLogger(LogViewerApp.class);
 
     @FXML
+    private Menu filterMenu;
+    @FXML
+    private TextField messageFilter;
+    @FXML
     private TableView<LogMessage> tableViewLog;
-
     @FXML
     private TableColumn<LogMessage, LogMessage> colRow;
     @FXML
@@ -37,25 +46,31 @@ public class LogViewerController {
     private TableColumn<LogMessage, Level> colLevel;
     @FXML
     private TableColumn<LogMessage, String> colMessage;
-
     @FXML
     private TextArea textAreaLog;
-
     @FXML
     private HBox spacer;
-
-    private ObjectProperty<ContentDisplay> logLevelContentDisplay = new SimpleObjectProperty<>(ContentDisplay.GRAPHIC_ONLY);
-
+    private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList() ;
+    private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);
+    private final ObjectProperty<ContentDisplay> logLevelContentDisplay = new SimpleObjectProperty<>(ContentDisplay.GRAPHIC_ONLY);
 
     @FXML
     public void initialize() {
-
         HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        for (Level level: Level.values()) {
+            CheckMenuItem levelItem = new CheckMenuItem(level.toString());
+            levelItem.setSelected(true);
+            levelItem.setOnAction(e -> filter());
+            filterMenu.getItems().add(levelItem);
+        }
+
+        messageFilter.textProperty().addListener((l, o, n) -> filter());
 
         tableViewLog.getSelectionModel().selectedItemProperty().addListener(this::handleLogMessageSelectionChange);
         tableViewLog.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
         tableViewLog.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        tableViewLog.setItems(filteredLogs);
 
         colRow.setCellValueFactory(LogViewerController::tableRowCellFactory);
         colRow.setCellFactory(column -> new TableRowTableCell());
@@ -83,8 +98,15 @@ public class LogViewerController {
         Clipboard.getSystemClipboard().setContent(content);
     }
 
+    public void addLogMessage(LogMessage logMessage) {
+        if (Platform.isFxApplicationThread()) {
+            allLogs.add(logMessage);
+        } else {
+            Platform.runLater(() -> addLogMessage(logMessage));
+        }
+    }
 
-    public String selectedLinesToString() {
+    private String selectedLinesToString() {
         StringBuilder sb = new StringBuilder();
         String delimiter = "\t";
         for (LogMessage message : tableViewLog.getSelectionModel().getSelectedItems()) {
@@ -104,6 +126,17 @@ public class LogViewerController {
             sb.append(System.lineSeparator());
         }
         return sb.toString();
+    }
+
+    private void filter()
+    {
+        List<Level> levelsFiltered = filterMenu.getItems()
+                .stream()
+                .filter(menuItem -> ((CheckMenuItem) menuItem).isSelected())
+                .map(menuItem -> Level.valueOf(menuItem.getText()))
+                .toList();
+
+        filteredLogs.setPredicate(logMessage -> logMessage.isFiltered(levelsFiltered, messageFilter.getText()));
     }
 
     private static ObjectProperty<LogMessage> tableRowCellFactory(TableColumn.CellDataFeatures<LogMessage, LogMessage> cellData) {
@@ -128,9 +161,8 @@ public class LogViewerController {
         if (timestamp == null)
             return new SimpleStringProperty("");
         else
-            return new SimpleStringProperty(TIMESTAMP_FORMAT.format(new Date(timestamp.longValue())));
+            return new SimpleStringProperty(TIMESTAMP_FORMAT.format(new Date(timestamp)));
     }
-
 
     private static ObjectProperty<Level> logLevelValueFactory(TableColumn.CellDataFeatures<LogMessage, Level> cellData) {
         var logMessage = cellData.getValue();
@@ -146,14 +178,6 @@ public class LogViewerController {
             return new SimpleStringProperty(logMessage.message());
     }
 
-    public void addLogMessage(LogMessage logMessage) {
-        if (Platform.isFxApplicationThread()) {
-            tableViewLog.getItems().add(logMessage);
-        } else {
-            Platform.runLater(() -> addLogMessage(logMessage));
-        }
-    }
-
     private void handleLogMessageSelectionChange(Observable observable, LogMessage oldValue, LogMessage newValue) {
         if (newValue != null) {
             textAreaLog.setText(newValue.message());
@@ -161,5 +185,4 @@ public class LogViewerController {
             textAreaLog.setText("");
         }
     }
-
 }
