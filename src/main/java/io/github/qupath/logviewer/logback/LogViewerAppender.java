@@ -2,6 +2,7 @@ package io.github.qupath.logviewer.logback;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
+import ch.qos.logback.classic.spi.ThrowableProxyUtil;
 import ch.qos.logback.core.AppenderBase;
 import io.github.qupath.logviewer.LogMessage;
 import io.github.qupath.logviewer.LogViewerController;

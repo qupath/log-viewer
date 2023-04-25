@@ -1,5 +1,7 @@
 package io.github.qupath.logviewer;
 
+import io.github.qupath.logviewer.logback.LogbackManager;
+import io.github.qupath.logviewer.logback.LoggerManager;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
@@ -23,6 +25,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
 
 public class LogViewerController {
     private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(System.getProperty("timestamp.format", "HH:mm:ss"));
@@ -30,6 +34,8 @@ public class LogViewerController {
 
     @FXML
     private Menu filterMenu;
+    @FXML
+    private ChoiceBox<Level> logLevel;
     @FXML
     private TextField messageFilter;
     @FXML
@@ -56,6 +62,9 @@ public class LogViewerController {
 
     @FXML
     public void initialize() {
+        LoggerManager manager = new LogbackManager();
+        manager.addAppender(this);
+
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         for (Level level: Level.values()) {
@@ -64,6 +73,10 @@ public class LogViewerController {
             levelItem.setOnAction(e -> filter());
             filterMenu.getItems().add(levelItem);
         }
+
+        logLevel.setItems(FXCollections.observableArrayList(Level.values()));
+        logLevel.getSelectionModel().selectedItemProperty().addListener((l, o, n) -> manager.setLogLevel(n));
+        logLevel.getSelectionModel().selectLast();
 
         messageFilter.textProperty().addListener((l, o, n) -> filter());
 
@@ -89,6 +102,11 @@ public class LogViewerController {
         colLevel.setCellFactory(column -> new LogLabelTableCell(logLevelContentDisplay));
 
         colMessage.setCellValueFactory(LogViewerController::logMessageValueFactory);
+
+        logger.info("Here's my first log message, for information");
+        Platform.runLater(() -> logRandomMessages(1000));
+        logRandomMessages(1000);
+        logger.warn("Here's a final message. With a warning.");
     }
 
     public void copySelectedLines() {
@@ -104,6 +122,20 @@ public class LogViewerController {
         } else {
             Platform.runLater(() -> addLogMessage(logMessage));
         }
+    }
+
+    private static void logRandomMessages(int maxMessages) {
+        IntStream.range(0, maxMessages)
+                .parallel()
+                .forEach(LogViewerController::logSingleRandomMessage);
+    }
+
+    private static void logSingleRandomMessage(int index) {
+        Level[] allLogLevels = Level.values();
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        Level level = allLogLevels[random.nextInt(allLogLevels.length)];
+        logger.atLevel(level)
+                .log("This is a test message {}", index);
     }
 
     private String selectedLinesToString() {
@@ -128,8 +160,7 @@ public class LogViewerController {
         return sb.toString();
     }
 
-    private void filter()
-    {
+    private void filter() {
         List<Level> levelsFiltered = filterMenu.getItems()
                 .stream()
                 .filter(menuItem -> ((CheckMenuItem) menuItem).isSelected())

@@ -6,10 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
-public class LogbackManager {
+public class LogbackManager implements LoggerManager {
     private final static Logger logger = LoggerFactory.getLogger(LogbackManager.class);
     private final static ch.qos.logback.classic.Logger root = getRootLogger();
 
+    @Override
     public void addAppender(LogViewerController controller) {
         if (root != null) {
             var appender = new LogViewerAppender(controller);
@@ -22,7 +23,8 @@ public class LogbackManager {
         }
     }
 
-    public void SetLogLevel(Level level) {
+    @Override
+    public void setLogLevel(Level level) {
         if (root != null) {
             root.setLevel(ch.qos.logback.classic.Level.convertAnSLF4JLevel(level));
         }
