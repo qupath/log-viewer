@@ -6,9 +6,10 @@ import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
@@ -34,7 +35,9 @@ public class LogViewerController {
     private final static Logger logger = LoggerFactory.getLogger(LogViewerApp.class);
 
     @FXML
-    private Menu filterMenu;
+    private Menu levelFilterMenu;
+    @FXML
+    private Menu threadFilterMenu;
     @FXML
     private ChoiceBox<Level> logLevel;
     @FXML
@@ -60,7 +63,7 @@ public class LogViewerController {
 
     @FXML
     private Label itemCounter;
-
+    private ObservableList<String> threadNames = FXCollections.observableArrayList();
 
     private LongProperty nWarnings = new SimpleLongProperty(0),
                             nErrors = new SimpleLongProperty(0),
@@ -82,7 +85,7 @@ public class LogViewerController {
             CheckMenuItem levelItem = new CheckMenuItem(level.toString());
             levelItem.setSelected(true);
             levelItem.setOnAction(e -> filter());
-            filterMenu.getItems().add(levelItem);
+            levelFilterMenu.getItems().add(levelItem);
         }
 
         logLevel.setItems(FXCollections.observableArrayList(Level.values()));
@@ -122,6 +125,8 @@ public class LogViewerController {
         colLevel.setCellFactory(column -> new LogLabelTableCell(logLevelContentDisplay));
 
         colMessage.setCellValueFactory(LogViewerController::logMessageValueFactory);
+
+        threadNames.addListener(new ThreadListChangeListener());
 
         logger.info("Here's my first log message, for information");
         Platform.runLater(() -> logRandomMessages(1000));
@@ -181,13 +186,19 @@ public class LogViewerController {
     }
 
     private void filter() {
-        List<Level> levelsFiltered = filterMenu.getItems()
+        List<Level> levelsFiltered = levelFilterMenu.getItems()
                 .stream()
                 .filter(menuItem -> ((CheckMenuItem) menuItem).isSelected())
                 .map(menuItem -> Level.valueOf(menuItem.getText()))
                 .toList();
 
-        filteredLogs.setPredicate(logMessage -> logMessage.isFiltered(levelsFiltered, messageFilter.getText()));
+        List<String> threadsFiltered = threadFilterMenu.getItems()
+                .stream()
+                .filter(menuItem -> ((CheckMenuItem) menuItem).isSelected())
+                .map(menuItem -> menuItem.getText())
+                .toList();
+
+        filteredLogs.setPredicate(logMessage -> logMessage.isFiltered(levelsFiltered, messageFilter.getText(), threadsFiltered));
     }
 
     private static ObjectProperty<LogMessage> tableRowCellFactory(TableColumn.CellDataFeatures<LogMessage, LogMessage> cellData) {
@@ -242,12 +253,44 @@ public class LogViewerController {
         public void onChanged(Change<? extends LogMessage> c) {
             while (c.next()) {
                 if (c.wasRemoved()) {
-                    nErrors.set(nErrors.subtract(c.getRemoved().stream().filter(logMessage -> logMessage.level() == Level.ERROR).count()).getValue());
-                    nWarnings.set(nWarnings.subtract(c.getRemoved().stream().filter(logMessage -> logMessage.level() == Level.WARN).count()).getValue());
+                    for (LogMessage logMessage: c.getRemoved()) {
+                        if (logMessage.level() == Level.ERROR) {
+                            nErrors.set(nErrors.subtract(1).getValue());
+                        } else if (logMessage.level() == Level.WARN) {
+                            nWarnings.set(nWarnings.subtract(1).getValue());
+                        }
+                    }
                 }
                 if (c.wasAdded()) {
-                    nErrors.set(nErrors.add(c.getAddedSubList().stream().filter(logMessage -> logMessage.level() == Level.ERROR).count()).getValue());
-                    nWarnings.set(nWarnings.add(c.getAddedSubList().stream().filter(logMessage -> logMessage.level() == Level.WARN).count()).getValue());
+                    for (LogMessage logMessage: c.getAddedSubList()) {
+                        if (logMessage.level() == Level.ERROR) {
+                            nErrors.set(nErrors.add(1).getValue());
+                        } else if (logMessage.level() == Level.WARN) {
+                            nWarnings.set(nWarnings.add(1).getValue());
+                        }
+                        if (!threadNames.contains(logMessage.threadName())) {
+                            threadNames.add(logMessage.threadName());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private class ThreadListChangeListener implements ListChangeListener<String> {
+        @Override
+        public void onChanged(Change<? extends String> c) {
+            while (c.next()) {
+                for (String s: c.getAddedSubList()) {
+                    CheckMenuItem cmItem = new CheckMenuItem(s);
+                    threadFilterMenu.getItems().add(cmItem);
+                    cmItem.setSelected(true);
+                    cmItem.selectedProperty().addListener(new ChangeListener<Boolean>() {
+                        @Override
+                        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                            filter();
+                        }
+                    });
                 }
             }
         }

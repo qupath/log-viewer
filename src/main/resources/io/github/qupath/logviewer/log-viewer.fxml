@@ -65,7 +65,8 @@
                   </MenuItem>
             </items>
           </Menu>
-            <Menu fx:id="filterMenu" mnemonicParsing="false" text="Filter" />
+            <Menu fx:id="levelFilterMenu" mnemonicParsing="false" text="Level" />
+            <Menu fx:id="threadFilterMenu" mnemonicParsing="false" text="Thread" />
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />

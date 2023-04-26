@@ -14,11 +14,11 @@ public record LogMessage(
         String message,
         Throwable throwable
 ) {
-    public boolean isFiltered(List<Level> levelsFiltered, String messageFilter) {
-        return levelsFiltered.contains(level) && isMessageFiltered(messageFilter);
+    public boolean isFiltered(List<Level> levelsFiltered, String messageFilter, List<String> threadsFiltered) {
+        return levelsFiltered.contains(level) && doesMessageMatch(messageFilter) && doesThreadMatch(threadsFiltered);
     }
 
-    private boolean isMessageFiltered(String messageFilter) {
+    private boolean doesMessageMatch(String messageFilter) {
         boolean messageFilteredByRegex = false;
         try {
             Pattern pattern = Pattern.compile(messageFilter, Pattern.CASE_INSENSITIVE);
@@ -29,5 +29,9 @@ public record LogMessage(
         }
 
         return messageFilteredByRegex || message.toLowerCase().contains(messageFilter.toLowerCase());
+    }
+
+    private boolean doesThreadMatch(List<String> threads) {
+        return threads.contains(this.threadName);
     }
 }
