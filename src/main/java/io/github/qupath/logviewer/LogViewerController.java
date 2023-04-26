@@ -13,7 +13,6 @@ import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
@@ -68,9 +67,9 @@ public class LogViewerController {
 
     @FXML
     private Label itemCounter;
-    private ObservableSet<String> threadNames = FXCollections.observableSet();
+    private final ObservableSet<String> threadNames = FXCollections.observableSet();
 
-    private LongProperty nWarnings = new SimpleLongProperty(0),
+    private final LongProperty nWarnings = new SimpleLongProperty(0),
                             nErrors = new SimpleLongProperty(0),
                             nTotalLogs = new SimpleLongProperty(0),
                             nVisibleLogs = new SimpleLongProperty(0);
@@ -206,11 +205,9 @@ public class LogViewerController {
         }
         final Pattern finalPattern = pattern;     // Variables inside lambdas must be final
 
-        filteredLogs.setPredicate(logMessage -> {
-            return displayedLogLevels.contains(logMessage.level()) &&
-                    isTextFilteredByFilter(finalPattern, logMessage.message(), messageFilter.getText()) &&
-                    displayedThreads.contains(logMessage.threadName());
-        });
+        filteredLogs.setPredicate(logMessage -> displayedLogLevels.contains(logMessage.level()) &&
+                isTextFilteredByFilter(finalPattern, logMessage.message(), messageFilter.getText()) &&
+                displayedThreads.contains(logMessage.threadName()));
     }
 
     private void handleLogMessageSelectionChange(Observable observable, LogMessage oldValue, LogMessage newValue) {
@@ -239,9 +236,6 @@ public class LogViewerController {
         updateLogMessageFilter();
     }
 
-    private void onDisplayedThreadsChanged(SetChangeListener.Change<? extends String> change) {
-        updateLogMessageFilter();
-    }
 
     private static ObjectProperty<LogMessage> tableRowCellFactory(TableColumn.CellDataFeatures<LogMessage, LogMessage> cellData) {
         return new SimpleObjectProperty<>(cellData.getValue());
@@ -334,9 +328,7 @@ public class LogViewerController {
                         } else if (logMessage.level() == Level.WARN) {
                             nWarnings.set(nWarnings.getValue() + 1);
                         }
-                        if (!threadNames.contains(logMessage.threadName())) {
-                            threadNames.add(logMessage.threadName());
-                        }
+                        threadNames.add(logMessage.threadName());
                     }
                 }
             }
@@ -351,12 +343,7 @@ public class LogViewerController {
             threadFilterMenu.getItems().add(cmItem);
             displayedThreads.add(s);
             cmItem.setSelected(true);
-            cmItem.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    onDisplayedThreadsItemSelected(event);
-                }
-            });
+            cmItem.setOnAction(LogViewerController.this::onDisplayedThreadsItemSelected);
         }
     }
 }
