@@ -8,6 +8,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
@@ -95,13 +96,7 @@ public class LogViewerController {
         tableViewLog.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         tableViewLog.setItems(filteredLogs);
 
-        tableViewLog.getItems().addListener(new ListChangeListener<LogMessage>() {
-            @Override
-            public void onChanged(Change<? extends LogMessage> c) {
-                nErrors.set(filteredLogs.stream().filter(logMessage -> logMessage.level() == Level.ERROR).count());
-                nWarnings.set(filteredLogs.stream().filter(logMessage -> logMessage.level() == Level.WARN).count());
-            }
-        });
+        tableViewLog.getItems().addListener(new LogMessageTableListChangeListener());
 
         nVisibleLogs.bind(Bindings.size(tableViewLog.getItems()));
         nTotalLogs.bind(Bindings.size(allLogs));
@@ -239,6 +234,22 @@ public class LogViewerController {
             textAreaLog.setText(newValue.message());
         } else {
             textAreaLog.setText("");
+        }
+    }
+
+    private class LogMessageTableListChangeListener implements ListChangeListener<LogMessage> {
+        @Override
+        public void onChanged(Change<? extends LogMessage> c) {
+            while (c.next()) {
+                if (c.wasRemoved()) {
+                    nErrors.set(nErrors.subtract(c.getRemoved().stream().filter(logMessage -> logMessage.level() == Level.ERROR).count()).getValue());
+                    nWarnings.set(nWarnings.subtract(c.getRemoved().stream().filter(logMessage -> logMessage.level() == Level.WARN).count()).getValue());
+                }
+                if (c.wasAdded()) {
+                    nErrors.set(nErrors.add(c.getAddedSubList().stream().filter(logMessage -> logMessage.level() == Level.ERROR).count()).getValue());
+                    nWarnings.set(nWarnings.add(c.getAddedSubList().stream().filter(logMessage -> logMessage.level() == Level.WARN).count()).getValue());
+                }
+            }
         }
     }
 }
