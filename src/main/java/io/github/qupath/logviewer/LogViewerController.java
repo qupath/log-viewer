@@ -313,23 +313,13 @@ public class LogViewerController {
         public void onChanged(Change<? extends LogMessage> c) {
             while (c.next()) {
                 if (c.wasRemoved()) {
-                    for (LogMessage logMessage: c.getRemoved()) {
-                        if (logMessage.level() == Level.ERROR) {
-                            nErrors.set(nErrors.getValue() - 1);
-                        } else if (logMessage.level() == Level.WARN) {
-                            nWarnings.set(nWarnings.getValue() - 1);
-                        }
-                    }
+                    nErrors.set(nErrors.getValue() - c.getRemoved().stream().filter(logMessage -> logMessage.level() == Level.ERROR).count());
+                    nWarnings.set(nWarnings.getValue() - c.getRemoved().stream().filter(logMessage -> logMessage.level() == Level.WARN).count());
                 }
                 if (c.wasAdded()) {
-                    for (LogMessage logMessage: c.getAddedSubList()) {
-                        if (logMessage.level() == Level.ERROR) {
-                            nErrors.set(nErrors.getValue() + 1);
-                        } else if (logMessage.level() == Level.WARN) {
-                            nWarnings.set(nWarnings.getValue() + 1);
-                        }
-                        threadNames.add(logMessage.threadName());
-                    }
+                    nErrors.set(nErrors.getValue() + c.getAddedSubList().stream().filter(logMessage -> logMessage.level() == Level.ERROR).count());
+                    nWarnings.set(nWarnings.getValue() + c.getAddedSubList().stream().filter(logMessage -> logMessage.level() == Level.WARN).count());
+                    threadNames.addAll(c.getAddedSubList().stream().map(logMessage -> logMessage.threadName()).toList());
                 }
             }
         }
