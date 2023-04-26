@@ -1,33 +1,45 @@
 package io.github.qupath.logviewer;
 
+import io.github.qupath.logviewer.logback.LogbackManager;
+import io.github.qupath.logviewer.logback.LoggerManager;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.slf4j.event.EventConstants.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.IntStream;
 
 public class LogViewerController {
-
     private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(System.getProperty("timestamp.format", "HH:mm:ss"));
+    private final static Logger logger = LoggerFactory.getLogger(LogViewerApp.class);
 
     @FXML
+    private Menu filterMenu;
+    @FXML
+    private ChoiceBox<Level> logLevel;
+    @FXML
+    private TextField messageFilter;
+    @FXML
     private TableView<LogMessage> tableViewLog;
-
     @FXML
     private TableColumn<LogMessage, LogMessage> colRow;
     @FXML
@@ -40,37 +52,61 @@ public class LogViewerController {
     private TableColumn<LogMessage, Level> colLevel;
     @FXML
     private TableColumn<LogMessage, String> colMessage;
-
     @FXML
     private TextArea textAreaLog;
-
     @FXML
     private HBox spacer;
 
     @FXML
     private Label itemCounter;
 
-    private ObjectProperty<ContentDisplay> logLevelContentDisplay = new SimpleObjectProperty<>(ContentDisplay.GRAPHIC_ONLY);
 
-    private IntegerProperty nWarnings = new SimpleIntegerProperty(0),
-                            nErrors = new SimpleIntegerProperty(0),
-                            nMessages = new SimpleIntegerProperty(0),
-                            nVisible = new SimpleIntegerProperty(0);
+    private LongProperty nWarnings = new SimpleLongProperty(0),
+                            nErrors = new SimpleLongProperty(0),
+                            nTotalLogs = new SimpleLongProperty(0),
+                            nVisibleLogs = new SimpleLongProperty(0);
+
+    private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList() ;
+    private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);
+    private final ObjectProperty<ContentDisplay> logLevelContentDisplay = new SimpleObjectProperty<>(ContentDisplay.GRAPHIC_ONLY);
 
     @FXML
     public void initialize() {
+        LoggerManager manager = new LogbackManager();
+        manager.addAppender(this);
+
         HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        for (Level level: Level.values()) {
+            CheckMenuItem levelItem = new CheckMenuItem(level.toString());
+            levelItem.setSelected(true);
+            levelItem.setOnAction(e -> filter());
+            filterMenu.getItems().add(levelItem);
+        }
+
+        logLevel.setItems(FXCollections.observableArrayList(Level.values()));
+        logLevel.getSelectionModel().selectedItemProperty().addListener((l, o, n) -> manager.setLogLevel(n));
+        logLevel.getSelectionModel().selectLast();
+
+        messageFilter.textProperty().addListener((l, o, n) -> filter());
 
         tableViewLog.getSelectionModel().selectedItemProperty().addListener(this::handleLogMessageSelectionChange);
         tableViewLog.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
         tableViewLog.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        tableViewLog.setItems(filteredLogs);
 
-        tableViewLog.getItems().addListener(new TableListItemListener());
+        tableViewLog.getItems().addListener(new ListChangeListener<LogMessage>() {
+            @Override
+            public void onChanged(Change<? extends LogMessage> c) {
+                nErrors.set(filteredLogs.stream().filter(logMessage -> logMessage.level() == Level.ERROR).count());
+                nWarnings.set(filteredLogs.stream().filter(logMessage -> logMessage.level() == Level.WARN).count());
+            }
+        });
 
-        nVisible.bind(Bindings.size(tableViewLog.getItems()));
+        nVisibleLogs.bind(Bindings.size(tableViewLog.getItems()));
+        nTotalLogs.bind(Bindings.size(allLogs));
         itemCounter.textProperty().bind(Bindings.concat(
-                nWarnings.asString(), " warnings, ", nErrors.asString(), " errors (", nVisible , " total)"
+                nWarnings.asString(), " warnings, ", nErrors.asString(), " errors (", nVisibleLogs, " shown, ", nTotalLogs, " total)"
         ));
 
 
@@ -91,6 +127,11 @@ public class LogViewerController {
         colLevel.setCellFactory(column -> new LogLabelTableCell(logLevelContentDisplay));
 
         colMessage.setCellValueFactory(LogViewerController::logMessageValueFactory);
+
+        logger.info("Here's my first log message, for information");
+        Platform.runLater(() -> logRandomMessages(1000));
+        logRandomMessages(1000);
+        logger.warn("Here's a final message. With a warning.");
     }
 
     public void copySelectedLines() {
@@ -100,8 +141,29 @@ public class LogViewerController {
         Clipboard.getSystemClipboard().setContent(content);
     }
 
+    public void addLogMessage(LogMessage logMessage) {
+        if (Platform.isFxApplicationThread()) {
+            allLogs.add(logMessage);
+        } else {
+            Platform.runLater(() -> addLogMessage(logMessage));
+        }
+    }
 
-    public String selectedLinesToString() {
+    private static void logRandomMessages(int maxMessages) {
+        IntStream.range(0, maxMessages)
+                .parallel()
+                .forEach(LogViewerController::logSingleRandomMessage);
+    }
+
+    private static void logSingleRandomMessage(int index) {
+        Level[] allLogLevels = Level.values();
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        Level level = allLogLevels[random.nextInt(allLogLevels.length)];
+        logger.atLevel(level)
+                .log("This is a test message {}", index);
+    }
+
+    private String selectedLinesToString() {
         StringBuilder sb = new StringBuilder();
         String delimiter = "\t";
         for (LogMessage message : tableViewLog.getSelectionModel().getSelectedItems()) {
@@ -121,6 +183,16 @@ public class LogViewerController {
             sb.append(System.lineSeparator());
         }
         return sb.toString();
+    }
+
+    private void filter() {
+        List<Level> levelsFiltered = filterMenu.getItems()
+                .stream()
+                .filter(menuItem -> ((CheckMenuItem) menuItem).isSelected())
+                .map(menuItem -> Level.valueOf(menuItem.getText()))
+                .toList();
+
+        filteredLogs.setPredicate(logMessage -> logMessage.isFiltered(levelsFiltered, messageFilter.getText()));
     }
 
     private static ObjectProperty<LogMessage> tableRowCellFactory(TableColumn.CellDataFeatures<LogMessage, LogMessage> cellData) {
@@ -145,9 +217,8 @@ public class LogViewerController {
         if (timestamp == null)
             return new SimpleStringProperty("");
         else
-            return new SimpleStringProperty(TIMESTAMP_FORMAT.format(new Date(timestamp.longValue())));
+            return new SimpleStringProperty(TIMESTAMP_FORMAT.format(new Date(timestamp)));
     }
-
 
     private static ObjectProperty<Level> logLevelValueFactory(TableColumn.CellDataFeatures<LogMessage, Level> cellData) {
         var logMessage = cellData.getValue();
@@ -163,14 +234,6 @@ public class LogViewerController {
             return new SimpleStringProperty(logMessage.message());
     }
 
-    public void addLogMessage(LogMessage logMessage) {
-        if (Platform.isFxApplicationThread()) {
-            tableViewLog.getItems().add(logMessage);
-        } else {
-            Platform.runLater(() -> addLogMessage(logMessage));
-        }
-    }
-
     private void handleLogMessageSelectionChange(Observable observable, LogMessage oldValue, LogMessage newValue) {
         if (newValue != null) {
             textAreaLog.setText(newValue.message());
@@ -178,30 +241,4 @@ public class LogViewerController {
             textAreaLog.setText("");
         }
     }
-
-    private class TableListItemListener implements ListChangeListener<LogMessage> {
-            @Override
-            public void onChanged(Change<? extends LogMessage> c) {
-                List<? extends LogMessage> changeList = new ArrayList<>();
-                int increment = 1;
-                while (c.next()) {
-                    if (c.wasAdded()) {
-                        changeList = c.getAddedSubList();
-                    } else {
-                        changeList = c.getRemoved();
-                        increment = -1;
-                    }
-                }
-                for (LogMessage item: changeList) {
-                    if (item.level() == Level.ERROR) {
-                        nErrors.set(nErrors.getValue() + increment);
-                    } else if (item.level() == Level.WARN) {
-                        nWarnings.set(nWarnings.getValue() + increment);
-                    }
-                }
-            }
-
-        }
-
-
 }
