@@ -2,7 +2,6 @@ package io.github.qupath.logviewer.logback;
 
 import ch.qos.logback.classic.LoggerContext;
 import io.github.qupath.logviewer.LogViewerController;
-import javafx.beans.property.ObjectProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;

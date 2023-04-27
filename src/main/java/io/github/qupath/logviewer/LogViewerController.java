@@ -29,6 +29,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import java.util.ResourceBundle;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -44,6 +45,8 @@ public class LogViewerController {
     private Menu minimumLogLevelMenu;
     @FXML
     private Menu displayedLogLevelsMenu;
+    @FXML
+    private ToggleButton regexButton;
     @FXML
     private TextField messageFilter;
     @FXML
@@ -79,6 +82,7 @@ public class LogViewerController {
     private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);
     private final ObjectProperty<ContentDisplay> logLevelContentDisplay = new SimpleObjectProperty<>(ContentDisplay.GRAPHIC_ONLY);
     private final ObservableSet<String> displayedThreads = FXCollections.observableSet();
+    private final ResourceBundle stringsResource = ResourceBundle.getBundle("io.github.qupath.logviewer.strings");
 
     @FXML
     public void initialize() {
@@ -108,6 +112,11 @@ public class LogViewerController {
             }
         });
 
+        regexButton.selectedProperty().addListener((l, o, n) -> {
+            messageFilter.setPromptText(stringsResource.getString(n ? "filter_by_regex" : "filter_by_text"));
+            updateLogMessageFilter();
+        });
+
         messageFilter.textProperty().addListener((l, o, n) -> updateLogMessageFilter());
 
         displayedLogLevels.addListener(this::onDisplayedLogLevelsChanged);
@@ -123,9 +132,10 @@ public class LogViewerController {
         nVisibleLogs.bind(Bindings.size(tableViewLog.getItems()));
         nTotalLogs.bind(Bindings.size(allLogs));
         itemCounter.textProperty().bind(Bindings.concat(
-                nWarnings.asString(), " warnings, ", nErrors.asString(), " errors (", nVisibleLogs, " shown, ", nTotalLogs, " total)"
+                nWarnings.asString(), " ", stringsResource.getString("warnings"), ", ",
+                nErrors.asString(), " ", stringsResource.getString("errors"),
+                " (", nVisibleLogs, " ", stringsResource.getString("shown"), ", ", nTotalLogs, " ", stringsResource.getString("total"), ")"
         ));
-
 
         colRow.setCellValueFactory(LogViewerController::tableRowCellFactory);
         colRow.setCellFactory(column -> new TableRowTableCell());
@@ -197,17 +207,26 @@ public class LogViewerController {
     }
 
     private void updateLogMessageFilter() {
-        Pattern pattern;
-        try {
-            pattern = Pattern.compile(messageFilter.getText(), Pattern.CASE_INSENSITIVE);
-        } catch (PatternSyntaxException e) {
-            pattern = null;
-        }
-        final Pattern finalPattern = pattern;     // Variables inside lambdas must be final
+        if (regexButton.isSelected()) {
+            Pattern pattern;
+            try {
+                pattern = Pattern.compile(messageFilter.getText(), Pattern.CASE_INSENSITIVE);
+            } catch (PatternSyntaxException e) {
+                pattern = null;
+            }
+            final Pattern finalPattern = pattern;     // Variables inside lambdas must be final
 
-        filteredLogs.setPredicate(logMessage -> displayedLogLevels.contains(logMessage.level()) &&
-                isTextFilteredByFilter(finalPattern, logMessage.message(), messageFilter.getText()) &&
-                displayedThreads.contains(logMessage.threadName()));
+            filteredLogs.setPredicate(logMessage ->
+                    displayedLogLevels.contains(logMessage.level()) &&
+                    isTextFilteredByRegex(finalPattern, logMessage.message()) &&
+                    displayedThreads.contains(logMessage.threadName())
+            );
+        } else {
+            filteredLogs.setPredicate(logMessage ->
+                    displayedLogLevels.contains(logMessage.level()) &&
+                    isTextFilteredByText(logMessage.message(), messageFilter.getText()) &&
+                    displayedThreads.contains(logMessage.threadName()));
+        }
     }
 
     private void handleLogMessageSelectionChange(Observable observable, LogMessage oldValue, LogMessage newValue) {
@@ -291,13 +310,12 @@ public class LogViewerController {
         return sb.toString();
     }
 
-    private boolean isTextFilteredByFilter(Pattern pattern, String text, String filter) {
-        boolean messageFilteredByRegex = false;
-        if (pattern != null) {
-            messageFilteredByRegex = pattern.matcher(text).find();
-        }
+    private static boolean isTextFilteredByRegex(Pattern pattern, String text) {
+        return pattern != null && pattern.matcher(text).find();
+    }
 
-        return messageFilteredByRegex || text.toLowerCase().contains(filter.toLowerCase());
+    private static boolean isTextFilteredByText(String text, String filter) {
+        return text.toLowerCase().contains(filter.toLowerCase());
     }
 
     private static void logSingleRandomMessage(int index) {
@@ -319,7 +337,7 @@ public class LogViewerController {
                 if (c.wasAdded()) {
                     nErrors.set(nErrors.getValue() + c.getAddedSubList().stream().filter(logMessage -> logMessage.level() == Level.ERROR).count());
                     nWarnings.set(nWarnings.getValue() + c.getAddedSubList().stream().filter(logMessage -> logMessage.level() == Level.WARN).count());
-                    threadNames.addAll(c.getAddedSubList().stream().map(logMessage -> logMessage.threadName()).toList());
+                    threadNames.addAll(c.getAddedSubList().stream().map(LogMessage::threadName).toList());
                 }
             }
         }
