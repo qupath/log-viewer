@@ -14,6 +14,7 @@ public record LogMessage(
         String message,
         Throwable throwable
 ) {
+
     @Override
     public String toString() {
         String stringRepresentation = level.toString() + "\t" + threadName + "\t" + loggerName + "\t" + new Date(timestamp) + "\t" + message;
