@@ -2,7 +2,7 @@
  * Gradle settings.
  */
 
-rootProject.name = 'demo-javafx-control'
+rootProject.name = 'qupath-log-viewer'
 
 dependencyResolutionManagement {
 
