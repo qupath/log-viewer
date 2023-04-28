@@ -14,21 +14,21 @@ import javafx.collections.SetChangeListener;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import java.util.ResourceBundle;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
@@ -37,14 +37,14 @@ import java.util.stream.IntStream;
 
 public class LogViewerController {
     private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(System.getProperty("timestamp.format", "HH:mm:ss"));
-    private final static Logger logger = LoggerFactory.getLogger(LogViewerApp.class);
+    private final static Logger logger = LoggerFactory.getLogger(LogViewerController.class);
 
     @FXML
     private Menu threadFilterMenu;
     @FXML
     private Menu minimumLogLevelMenu;
     @FXML
-    private Menu displayedLogLevelsMenu;
+    private Pane displayedLogLevelsGroup;
     @FXML
     private ToggleButton regexButton;
     @FXML
@@ -66,43 +66,45 @@ public class LogViewerController {
     @FXML
     private TextArea textAreaLog;
     @FXML
-    private HBox spacer;
-
-    @FXML
     private Label itemCounter;
+    @FXML
+    private ResourceBundle resources;
     private final ObservableSet<String> threadNames = FXCollections.observableSet();
-
     private final LongProperty nWarnings = new SimpleLongProperty(0),
                             nErrors = new SimpleLongProperty(0),
                             nTotalLogs = new SimpleLongProperty(0),
                             nVisibleLogs = new SimpleLongProperty(0);
-
     private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList() ;
     private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
     private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);
     private final ObjectProperty<ContentDisplay> logLevelContentDisplay = new SimpleObjectProperty<>(ContentDisplay.GRAPHIC_ONLY);
     private final ObservableSet<String> displayedThreads = FXCollections.observableSet();
-    private final ResourceBundle stringsResource = ResourceBundle.getBundle("io.github.qupath.logviewer.strings");
 
     @FXML
     public void initialize() {
         LoggerManager manager = new LogbackManager();
         manager.addAppender(this);
 
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(displayedLogLevelsGroup, Priority.ALWAYS);
 
         ToggleGroup minimumLogLevelGroup = new ToggleGroup();
         for (Level level: Level.values()) {
-            CheckMenuItem displayedLogLevelsItem = new CheckMenuItem(level.toString());
-            displayedLogLevelsItem.setSelected(true);
-            displayedLogLevelsItem.setOnAction(this::onDisplayedLogLevelsItemClicked);
-            displayedLogLevelsMenu.getItems().add(displayedLogLevelsItem);
-
             RadioMenuItem minimumLogLevelItem = new RadioMenuItem(level.toString());
-            minimumLogLevelItem.setOnAction(e -> manager.setRootLogLevel(Level.valueOf(((MenuItem) e.getTarget()).getText())));
+            minimumLogLevelItem.setOnAction(e -> manager.setRootLogLevel(level));
             minimumLogLevelItem.setSelected(true);
             minimumLogLevelItem.setToggleGroup(minimumLogLevelGroup);
             minimumLogLevelMenu.getItems().add(minimumLogLevelItem);
+
+            ToggleButton displayedLogLevelsItem = new ToggleButton(level.toString());
+            displayedLogLevelsItem.setSelected(true);
+            displayedLogLevelsItem.selectedProperty().addListener((l, o, n) -> {
+                if (n) {
+                    displayedLogLevels.add(Level.valueOf(displayedLogLevelsItem.getText()));
+                } else {
+                    displayedLogLevels.remove(Level.valueOf(displayedLogLevelsItem.getText()));
+                }
+            });
+            displayedLogLevelsGroup.getChildren().add(displayedLogLevelsItem);
         }
         minimumLogLevelMenu.setOnShowing(event -> {
             Level currentLevel = manager.getRootLogLevel();
@@ -113,7 +115,7 @@ public class LogViewerController {
         });
 
         regexButton.selectedProperty().addListener((l, o, n) -> {
-            messageFilter.setPromptText(stringsResource.getString(n ? "filter_by_regex" : "filter_by_text"));
+            messageFilter.setPromptText(resources.getString(n ? "Toolbar.Filter.filterByRegex" : "Toolbar.Filter.filterByText"));
             updateLogMessageFilter();
         });
 
@@ -132,9 +134,9 @@ public class LogViewerController {
         nVisibleLogs.bind(Bindings.size(tableViewLog.getItems()));
         nTotalLogs.bind(Bindings.size(allLogs));
         itemCounter.textProperty().bind(Bindings.concat(
-                nWarnings.asString(), " ", stringsResource.getString("warnings"), ", ",
-                nErrors.asString(), " ", stringsResource.getString("errors"),
-                " (", nVisibleLogs, " ", stringsResource.getString("shown"), ", ", nTotalLogs, " ", stringsResource.getString("total"), ")"
+                nWarnings.asString(), " ", resources.getString("LogCount.warnings"), ", ",
+                nErrors.asString(), " ", resources.getString("LogCount.errors"),
+                " (", nVisibleLogs, " ", resources.getString("LogCount.shown"), ", ", nTotalLogs, " ", resources.getString("LogCount.total"), ")"
         ));
 
         colRow.setCellValueFactory(LogViewerController::tableRowCellFactory);
@@ -185,24 +187,15 @@ public class LogViewerController {
     private void onDisplayedLogLevelsChanged(SetChangeListener.Change<? extends Level> change) {
         updateLogMessageFilter();
 
-        for (MenuItem item: displayedLogLevelsMenu.getItems()) {
-            CheckMenuItem checkMenuItem = (CheckMenuItem) item;
+        for (Node item: displayedLogLevelsGroup.getChildren()) {
+            ToggleButton toggleButton = (ToggleButton) item;
 
-            if (change.getElementAdded() != null && item.getText().equals(change.getElementAdded().toString())) {
-                checkMenuItem.setSelected(true);
+            if (change.getElementAdded() != null && toggleButton.getText().equals(change.getElementAdded().toString())) {
+                toggleButton.setSelected(true);
             }
-            if (change.getElementRemoved() != null && item.getText().equals(change.getElementRemoved().toString())) {
-                checkMenuItem.setSelected(false);
+            if (change.getElementRemoved() != null && toggleButton.getText().equals(change.getElementRemoved().toString())) {
+                toggleButton.setSelected(false);
             }
-        }
-    }
-
-    private void onDisplayedLogLevelsItemClicked(ActionEvent e) {
-        CheckMenuItem item = (CheckMenuItem) e.getSource();
-        if (item.isSelected()) {
-            displayedLogLevels.add(Level.valueOf(item.getText()));
-        } else {
-            displayedLogLevels.remove(Level.valueOf(item.getText()));
         }
     }
 
@@ -304,7 +297,7 @@ public class LogViewerController {
     private String selectedLinesToString() {
         StringBuilder sb = new StringBuilder();
         for (LogMessage message : tableViewLog.getSelectionModel().getSelectedItems()) {
-            sb.append(message);
+            sb.append(message.toReadableString());
             sb.append(System.lineSeparator());
         }
         return sb.toString();

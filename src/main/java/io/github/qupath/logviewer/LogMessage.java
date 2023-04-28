@@ -15,16 +15,17 @@ public record LogMessage(
         Throwable throwable
 ) {
 
-    @Override
-    public String toString() {
-        String stringRepresentation = level.toString() + "\t" + threadName + "\t" + loggerName + "\t" + new Date(timestamp) + "\t" + message;
+    public String toReadableString() {
+        String readableString = level.toString() + "\t" + threadName + "\t" + loggerName + "\t" + new Date(timestamp) + "\t" + message;
 
         if (throwable != null) {
             StringWriter sw = new StringWriter();
-            throwable.printStackTrace(new PrintWriter(sw));
-            stringRepresentation += "\t" + sw;
+            try (var pw = new PrintWriter(sw)) {
+                throwable.printStackTrace(pw);
+            }
+            readableString += "\t" + sw;
         }
 
-        return stringRepresentation;
+        return readableString;
     }
 }
