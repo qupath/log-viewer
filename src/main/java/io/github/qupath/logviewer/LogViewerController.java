@@ -28,6 +28,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -210,26 +211,15 @@ public class LogViewerController {
     }
 
     private void updateLogMessageFilter() {
-        if (regexButton.isSelected()) {
-            Pattern pattern;
-            try {
-                pattern = Pattern.compile(messageFilter.getText(), Pattern.CASE_INSENSITIVE);
-            } catch (PatternSyntaxException e) {
-                pattern = null;
-            }
-            final Pattern finalPattern = pattern;     // Variables inside lambdas must be final
+        Predicate<LogMessage> filterPredicate = regexButton.isSelected() ?
+                LogMessagePredicates.createPredicateFromRegex(messageFilter.getText()) :
+                LogMessagePredicates.createPredicateContainsIgnoreCase(messageFilter.getText());
 
-            filteredLogs.setPredicate(logMessage ->
-                    displayedLogLevels.contains(logMessage.level()) &&
-                    FilterOperations.isTextFilteredByRegexPattern(finalPattern, logMessage.message()) &&
-                    displayedThreads.contains(logMessage.threadName())
-            );
-        } else {
-            filteredLogs.setPredicate(logMessage ->
-                    displayedLogLevels.contains(logMessage.level()) &&
-                    FilterOperations.isTextFilteredByText(logMessage.message(), messageFilter.getText()) &&
-                    displayedThreads.contains(logMessage.threadName()));
-        }
+        filteredLogs.setPredicate(
+                filterPredicate.and(
+                        logMessage -> displayedLogLevels.contains(logMessage.level()) && displayedThreads.contains(logMessage.threadName())
+                )
+        );
     }
 
     private void handleLogMessageSelectionChange(Observable observable, LogMessage oldValue, LogMessage newValue) {

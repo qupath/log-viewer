@@ -5,7 +5,6 @@ import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.AppenderBase;
 import io.github.qupath.logviewer.LogMessage;
 import io.github.qupath.logviewer.LogViewerController;
-import org.slf4j.event.Level;
 
 public class LogViewerAppender extends AppenderBase<ILoggingEvent> {
     private final LogViewerController controller;
