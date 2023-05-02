@@ -6,22 +6,29 @@ import java.util.regex.PatternSyntaxException;
 
 public class LogMessagePredicates {
     public static Predicate<LogMessage> createPredicateFromRegex(String regex) {
-        Pattern pattern;
-        try {
-            pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-        } catch (PatternSyntaxException e) {
-            pattern = null;
-        }
-        final Pattern finalPattern = pattern;     // Variables inside lambdas must be final
+        if (regex == null || regex.isEmpty())
+            return logMessage -> true;
 
-        return logMessage -> finalPattern != null && finalPattern.matcher(logMessage.message()).find();
+        try {
+            Pattern pattern = Pattern.compile(regex);
+            return logMessage -> pattern.matcher(logMessage.message()).find();
+        } catch (PatternSyntaxException e) {
+            return logMessage -> false;
+        }
     }
 
     public static Predicate<LogMessage> createPredicateContains(String text) {
+        if (text == null || text.isEmpty())
+            return logMessage -> true;
+
         return logMessage -> logMessage.message().contains(text);
     }
 
     public static Predicate<LogMessage> createPredicateContainsIgnoreCase(String text) {
-        return logMessage -> createPredicateContains(text.toLowerCase()).test(logMessage.withMessage(logMessage.message().toLowerCase()));
+        if (text == null || text.isEmpty())
+            return logMessage -> true;
+
+        String textLower = text.toLowerCase();
+        return logMessage -> logMessage.message().toLowerCase().contains(textLower);
     }
 }
