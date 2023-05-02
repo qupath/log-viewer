@@ -1,4 +1,4 @@
-module demo {
+module logviewer {
 
     requires javafx.base;
     requires javafx.controls;

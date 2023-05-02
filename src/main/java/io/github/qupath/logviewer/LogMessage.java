@@ -14,7 +14,6 @@ public record LogMessage(
         String message,
         Throwable throwable
 ) {
-
     public String toReadableString() {
         String readableString = level.toString() + "\t" + threadName + "\t" + loggerName + "\t" + new Date(timestamp) + "\t" + message;
 

@@ -47,7 +47,7 @@ javafx {
 }
 
 application {
-    mainModule = 'demo'
+    mainModule = 'logviewer'
     mainClass = 'io.github.qupath.logviewer.LogViewerApp'
 }
 
@@ -60,6 +60,6 @@ tasks.named('test') {
 jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     launcher {
-        name = 'demo'
+        name = 'logviewer'
     }
 }
