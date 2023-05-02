@@ -1,0 +1,20 @@
+plugins {
+    // Apply the Java library plugin to add support for building a library in Java.
+    id 'java-library'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    // Use SLF4J as interface for any logging framework.
+    api 'org.slf4j:slf4j-api:2.0.4'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}

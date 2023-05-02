@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.qupath.logviewer.app.LogViewerController">
+   <center>
+      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <center>
+            <SplitPane dividerPositions="0.659919028340081" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" BorderPane.alignment="CENTER">
+               <items>
+                  <TableView fx:id="tableViewLog" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true">
+                    <columns>
+                      <TableColumn fx:id="colRow" editable="false" maxWidth="50.0" prefWidth="30.0" sortable="false" styleClass="col-row" text="#" />
+                        <TableColumn fx:id="colLevel" editable="false" maxWidth="60.0" prefWidth="60.0" sortable="false" styleClass="col-level" text="%Table.level" />
+                        <TableColumn fx:id="colThread" editable="false" maxWidth="1.7976931348623157E308" prefWidth="90.0" sortable="false" styleClass="col-time" text="%Table.thread" />
+                        <TableColumn fx:id="colLogger" editable="false" maxWidth="1.7976931348623157E308" prefWidth="90.0" sortable="false" styleClass="col-time" text="%Table.logger" />
+                      <TableColumn fx:id="colTimestamp" editable="false" maxWidth="120.0" prefWidth="90.0" sortable="false" styleClass="col-time" text="%Table.time" />
+                        <TableColumn fx:id="colMessage" editable="false" maxWidth="1.7976931348623157E308" prefWidth="400.0" sortable="false" styleClass="col-message" text="%Table.message" />
+                    </columns>
+                  </TableView>
+                  <TextArea fx:id="textAreaLog" editable="false" prefHeight="200.0" prefWidth="200.0" />
+               </items>
+            </SplitPane>
+         </center>
+         <top>
+            <ToolBar maxWidth="1.7976931348623157E308" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <items>
+                  <HBox fx:id="displayedLogLevelsGroup" alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" prefHeight="0.0" prefWidth="0.0" />
+                  <TextField fx:id="messageFilter" prefColumnCount="16" promptText="%Toolbar.Filter.filterByText" />
+                  <ToggleButton fx:id="regexButton" mnemonicParsing="false" text=".*" />
+               </items>
+            </ToolBar>
+         </top>
+      </BorderPane>
+   </center>
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="%Menu.File">
+            <items>
+              <MenuItem mnemonicParsing="false" text="%Action.File.close" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="%Menu.Edit">
+            <items>
+              <MenuItem fx:id="miCopy" mnemonicParsing="false" onAction="#copySelectedLines" text="%Action.Edit.copy">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                     </accelerator>
+                  </MenuItem>
+            </items>
+          </Menu>
+            <Menu fx:id="threadFilterMenu" mnemonicParsing="false" text="%Menu.Thread" />
+            <Menu mnemonicParsing="false" text="%Menu.Level">
+               <items>
+                  <Menu fx:id="minimumLogLevelMenu" mnemonicParsing="false" text="%Menu.Level.MinimumLogLevel" />
+               </items></Menu>
+          <Menu mnemonicParsing="false" text="%Menu.Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="%Menu.Help.about" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <bottom>
+      <FlowPane prefHeight="25.0" prefWidth="706.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="itemCounter">
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </Label>
+         </children>
+      </FlowPane>
+   </bottom>
+</BorderPane>
