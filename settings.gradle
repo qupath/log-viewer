@@ -1,15 +1,10 @@
-/*
- * Gradle settings.
- */
-
 rootProject.name = 'qupath-log-viewer'
 
-dependencyResolutionManagement {
+// Main application
+include 'log-viewer-app'
 
-    repositories {
+// Logging module abstraction
+include 'log-viewer-api'
 
-        // Use Maven Central for dependencies
-        mavenCentral()
-
-    }
-}
+// Logging modules
+include 'log-viewer-logback'
