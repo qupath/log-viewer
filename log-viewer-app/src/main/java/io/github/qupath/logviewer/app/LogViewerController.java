@@ -96,7 +96,7 @@ public class LogViewerController implements LoggerController {
             setUpMinimumLogLevel(loggerManager);
 
             if (allProviders.hasNext()) {
-                logger.atWarn().setMessage("More than one logging manager detected. {} was selected.").addArgument(loggerManager).log();
+                logger.atWarn().setMessage("More than one logging manager detected. The log messages may not be correctly forwarded.").log();
             }
         } else {
             System.err.println("No logging manager found");
@@ -131,9 +131,11 @@ public class LogViewerController implements LoggerController {
 
         minimumLogLevelMenu.setOnShowing(event -> {
             Level currentLevel = manager.getRootLogLevel();
+            String currentLevelStr = currentLevel == null ? "" : currentLevel.toString();
+
             for (MenuItem item : minimumLogLevelMenu.getItems()) {
                 RadioMenuItem radioMenuItem = (RadioMenuItem) item;
-                radioMenuItem.setSelected(radioMenuItem.getText().equals(currentLevel.toString()));
+                radioMenuItem.setSelected(radioMenuItem.getText().equals(currentLevelStr));
             }
         });
     }

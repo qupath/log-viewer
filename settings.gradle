@@ -8,3 +8,4 @@ include 'log-viewer-api'
 
 // Logging modules
 include 'log-viewer-logback'
+include 'log-viewer-reload4j'
