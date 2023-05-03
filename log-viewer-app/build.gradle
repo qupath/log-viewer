@@ -21,8 +21,11 @@ dependencies {
     // Use logging abstraction. This also import SLF4J.
     implementation project(':log-viewer-api')
 
-    // Use implementation of Logback
-    implementation project(':log-viewer-logback')
+    // Use Logback implementation.
+    //implementation project(':log-viewer-logback')
+
+    // Use reload4j implementation.
+    implementation project(':log-viewer-reload4j')
 }
 
 java {

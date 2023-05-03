@@ -38,11 +38,11 @@ public class LogbackManager implements LoggerManager {
 
     public static Level toSlf4JLevel(ch.qos.logback.classic.Level level) {
         return switch (level.toInt()) {
-            case ch.qos.logback.classic.Level.TRACE_INT -> Level.TRACE;
+            case ch.qos.logback.classic.Level.TRACE_INT, ch.qos.logback.classic.Level.ALL_INT -> Level.TRACE;
             case ch.qos.logback.classic.Level.DEBUG_INT -> Level.DEBUG;
             case ch.qos.logback.classic.Level.INFO_INT -> Level.INFO;
             case ch.qos.logback.classic.Level.WARN_INT -> Level.WARN;
-            case ch.qos.logback.classic.Level.ERROR_INT -> Level.ERROR;
+            case ch.qos.logback.classic.Level.ERROR_INT, ch.qos.logback.classic.Level.OFF_INT -> Level.ERROR;
             default -> null;
         };
     }

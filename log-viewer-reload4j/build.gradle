@@ -1,0 +1,26 @@
+plugins {
+    // Apply the Java library plugin to add support for building a library in Java.
+    id 'java-library'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    // Use reload4j as logging framework.
+    implementation 'ch.qos.reload4j:reload4j:1.2.25'
+
+    // Use SLF4J Reload4j Binding.
+    implementation 'org.slf4j:slf4j-reload4j:2.0.7'
+
+    // Use logging abstraction.
+    implementation project(':log-viewer-api')
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
