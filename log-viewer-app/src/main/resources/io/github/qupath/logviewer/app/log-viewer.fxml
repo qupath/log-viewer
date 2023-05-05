@@ -50,11 +50,11 @@
                  <ToggleButton fx:id="regexButton" mnemonicParsing="false" text=".*" />
                  <TextField fx:id="messageFilter" prefColumnCount="16" promptText="%Toolbar.Filter.filterByText" HBox.hgrow="ALWAYS" />
                  <HBox fx:id="displayedLogLevelsGroup" alignment="CENTER" spacing="3.0" styleClass="displayed-log-levels">
-                     <ToggleButton mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="ERROR" />
-                     <ToggleButton mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="WARN" />
-                     <ToggleButton mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="INFO" />
-                     <ToggleButton mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="DEBUG" />
-                     <ToggleButton mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="TRACE" />
+                     <ToggleButton fx:id="displayErrorButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="ERROR" />
+                     <ToggleButton fx:id="displayWarnButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="WARN" />
+                     <ToggleButton fx:id="displayInfoButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="INFO" />
+                     <ToggleButton fx:id="displayDebugButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="DEBUG" />
+                     <ToggleButton fx:id="displayTraceButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="TRACE" />
                  </HBox>
              </ToolBar>
          </top>

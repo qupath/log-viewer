@@ -42,6 +42,16 @@ public class LogViewerController implements LoggerController {
     @FXML
     private TextField messageFilter;
     @FXML
+    private ToggleButton displayErrorButton;
+    @FXML
+    private ToggleButton displayWarnButton;
+    @FXML
+    private ToggleButton displayInfoButton;
+    @FXML
+    private ToggleButton displayDebugButton;
+    @FXML
+    private ToggleButton displayTraceButton;
+    @FXML
     private TableView<LogMessage> tableViewLog;
     @FXML
     private TableColumn<LogMessage, LogMessage> colRow;
@@ -66,9 +76,9 @@ public class LogViewerController implements LoggerController {
                             nErrors = new SimpleLongProperty(0),
                             nTotalLogs = new SimpleLongProperty(0),
                             nVisibleLogs = new SimpleLongProperty(0);
-    private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList() ;
-    private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
+    private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList();
     private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);
+    private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
     private final ObjectProperty<ContentDisplay> logLevelContentDisplay = new SimpleObjectProperty<>(ContentDisplay.GRAPHIC_ONLY);
     private final ObservableSet<String> displayedThreads = FXCollections.observableSet();
     private LoggerManager loggerManager;
@@ -149,6 +159,12 @@ public class LogViewerController implements LoggerController {
     }
 
     private void setUpDisplayedLogLevels() {
+        displayErrorButton.visibleProperty().bind(Bindings.isNotEmpty(allLogs.filtered(logMessage -> logMessage.level() == Level.ERROR)));
+        displayWarnButton.visibleProperty().bind(Bindings.isNotEmpty(allLogs.filtered(logMessage -> logMessage.level() == Level.WARN)));
+        displayInfoButton.visibleProperty().bind(Bindings.isNotEmpty(allLogs.filtered(logMessage -> logMessage.level() == Level.INFO)));
+        displayDebugButton.visibleProperty().bind(Bindings.isNotEmpty(allLogs.filtered(logMessage -> logMessage.level() == Level.DEBUG)));
+        displayTraceButton.visibleProperty().bind(Bindings.isNotEmpty(allLogs.filtered(logMessage -> logMessage.level() == Level.TRACE)));
+
         displayedLogLevels.addListener((SetChangeListener<? super Level>) change -> {
             updateLogMessageFilter();
 

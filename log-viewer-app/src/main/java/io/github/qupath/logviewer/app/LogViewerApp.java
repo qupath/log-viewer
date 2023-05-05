@@ -2,15 +2,14 @@ package io.github.qupath.logviewer.app;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
-import java.util.ResourceBundle;
+
+import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,20 +25,11 @@ public class LogViewerApp extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        var url = getClass().getResource("log-viewer.fxml");
-        if (url == null) {
-            System.err.println("No URL found!");
-            System.exit(-1);
-        }
+    public void start(Stage primaryStage) throws IOException {
+        LogViewer logViewer = new LogViewer();
+        Scene scene = new Scene(logViewer.getParent());
 
-        ResourceBundle resources = ResourceBundle.getBundle("io.github.qupath.logviewer.app.strings");
-        FXMLLoader loader = new FXMLLoader(url, resources);
-        loader.load();
-        Parent root = loader.getRoot();
-        Scene scene = new Scene(root);
-
-        primaryStage.setTitle(resources.getString("title"));
+        primaryStage.setTitle(logViewer.getTitle());
         primaryStage.setScene(scene);
         primaryStage.show();
 
