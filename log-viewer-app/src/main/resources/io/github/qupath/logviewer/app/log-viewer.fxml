@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.qupath.logviewer.app.LogViewerController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@css/styles.css" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.github.qupath.logviewer.app.LogViewerController">
    <center>
       <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <center>
@@ -25,13 +28,21 @@
                <items>
                   <TableView fx:id="tableViewLog" prefHeight="200.0" prefWidth="200.0" tableMenuButtonVisible="true">
                     <columns>
-                      <TableColumn fx:id="colRow" editable="false" maxWidth="50.0" prefWidth="30.0" sortable="false" styleClass="col-row" text="#" />
-                        <TableColumn fx:id="colLevel" editable="false" maxWidth="60.0" prefWidth="60.0" sortable="false" styleClass="col-level" text="%Table.level" />
-                        <TableColumn fx:id="colThread" editable="false" maxWidth="1.7976931348623157E308" prefWidth="90.0" sortable="false" styleClass="col-time" text="%Table.thread" />
-                        <TableColumn fx:id="colLogger" editable="false" maxWidth="1.7976931348623157E308" prefWidth="90.0" sortable="false" styleClass="col-time" text="%Table.logger" />
-                      <TableColumn fx:id="colTimestamp" editable="false" maxWidth="120.0" prefWidth="90.0" sortable="false" styleClass="col-time" text="%Table.time" />
+                      <TableColumn fx:id="colRow" editable="false" maxWidth="50.0" prefWidth="30.0" sortable="false" text="#" />
+                        <TableColumn fx:id="colLevel" editable="false" maxWidth="60.0" prefWidth="60.0" sortable="false" text="%Table.level" />
+                        <TableColumn fx:id="colThread" editable="false" maxWidth="1.7976931348623157E308" prefWidth="90.0" sortable="false" text="%Table.thread" />
+                        <TableColumn fx:id="colLogger" editable="false" maxWidth="1.7976931348623157E308" prefWidth="90.0" sortable="false" text="%Table.logger" />
+                      <TableColumn fx:id="colTimestamp" editable="false" maxWidth="120.0" prefWidth="90.0" sortable="false" text="%Table.time" />
                         <TableColumn fx:id="colMessage" editable="false" maxWidth="1.7976931348623157E308" prefWidth="400.0" sortable="false" styleClass="col-message" text="%Table.message" />
                     </columns>
+                     <contextMenu>
+                        <ContextMenu>
+                          <items>
+                              <MenuItem mnemonicParsing="false" onAction="#copySelectedLines" text="%Table.Action.copy" />
+                              <MenuItem mnemonicParsing="false" onAction="#copySelectedMessages" text="%Table.Action.copyMessages" />
+                          </items>
+                        </ContextMenu>
+                     </contextMenu>
                   </TableView>
                   <TextArea fx:id="textAreaLog" editable="false" prefHeight="200.0" prefWidth="200.0" />
                </items>
@@ -40,9 +51,17 @@
          <top>
             <ToolBar maxWidth="1.7976931348623157E308" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <items>
-                  <HBox fx:id="displayedLogLevelsGroup" alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" prefHeight="0.0" prefWidth="0.0" />
-                  <TextField fx:id="messageFilter" prefColumnCount="16" promptText="%Toolbar.Filter.filterByText" />
                   <ToggleButton fx:id="regexButton" mnemonicParsing="false" text=".*" />
+                  <TextField fx:id="messageFilter" prefColumnCount="16" promptText="%Toolbar.Filter.filterByText" HBox.hgrow="ALWAYS" />
+                  <HBox fx:id="displayedLogLevelsGroup" alignment="CENTER" spacing="3.0" styleClass="displayed-log-levels">
+                     <children>
+                        <ToggleButton mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="ERROR" />
+                        <ToggleButton mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="WARN" />
+                        <ToggleButton mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="INFO" />
+                        <ToggleButton mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="DEBUG" />
+                        <ToggleButton mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="TRACE" />
+                     </children>
+                  </HBox>
                </items>
             </ToolBar>
          </top>
@@ -68,7 +87,34 @@
             <Menu fx:id="threadFilterMenu" mnemonicParsing="false" text="%Menu.Thread" />
             <Menu mnemonicParsing="false" text="%Menu.Level">
                <items>
-                  <Menu fx:id="minimumLogLevelMenu" mnemonicParsing="false" text="%Menu.Level.MinimumLogLevel" />
+                  <Menu mnemonicParsing="false" onShowing="#onMinimumLogLevelMenuClicked" text="%Menu.Level.MinimumLogLevel">
+                     <items>
+                        <RadioMenuItem mnemonicParsing="false" onAction="#onMinimumLogLevelItemClicked" selected="true" text="ERROR">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="minimumLogLevelGroup" />
+                           </toggleGroup>
+                        </RadioMenuItem>
+                        <RadioMenuItem mnemonicParsing="false" onAction="#onMinimumLogLevelItemClicked" selected="true" text="WARN">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="minimumLogLevelGroup1" />
+                           </toggleGroup>
+                        </RadioMenuItem>
+                        <RadioMenuItem mnemonicParsing="false" onAction="#onMinimumLogLevelItemClicked" selected="true" text="INFO">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="minimumLogLevelGroup2" />
+                           </toggleGroup>
+                        </RadioMenuItem>
+                        <RadioMenuItem mnemonicParsing="false" onAction="#onMinimumLogLevelItemClicked" selected="true" text="DEBUG">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="minimumLogLevelGroup3" />
+                           </toggleGroup>
+                        </RadioMenuItem>
+                        <RadioMenuItem mnemonicParsing="false" onAction="#onMinimumLogLevelItemClicked" selected="true" text="TRACE">
+                           <toggleGroup>
+                              <ToggleGroup fx:id="minimumLogLevelGroup11" />
+                           </toggleGroup>
+                        </RadioMenuItem>
+                     </items></Menu>
                </items></Menu>
           <Menu mnemonicParsing="false" text="%Menu.Help">
             <items>
