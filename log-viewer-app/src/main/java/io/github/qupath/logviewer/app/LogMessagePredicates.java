@@ -19,13 +19,6 @@ public class LogMessagePredicates {
         }
     }
 
-    public static Predicate<LogMessage> createPredicateContains(String text) {
-        if (text == null || text.isEmpty())
-            return logMessage -> true;
-
-        return logMessage -> logMessage.message().contains(text);
-    }
-
     public static Predicate<LogMessage> createPredicateContainsIgnoreCase(String text) {
         if (text == null || text.isEmpty())
             return logMessage -> true;
