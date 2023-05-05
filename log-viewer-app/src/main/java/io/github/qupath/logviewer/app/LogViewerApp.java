@@ -72,8 +72,8 @@ public class LogViewerApp extends Application {
             } catch (Exception e) {
                 logger.error("Exception", e);
             }
-            Platform.runLater(() -> logRandomMessages(1000));
-            logRandomMessages(1000);
+            Platform.runLater(LogViewerApp::logRandomMessages);
+            logRandomMessages();
             logger.warn("Here's a final message. With a warning.");
 
             executor = Executors.newScheduledThreadPool(1);
@@ -87,8 +87,8 @@ public class LogViewerApp extends Application {
         }
     }
 
-    private static void logRandomMessages(int maxMessages) {
-        IntStream.range(0, maxMessages)
+    private static void logRandomMessages() {
+        IntStream.range(0, 1000)
                 .parallel()
                 .forEach(LogViewerApp::logSingleRandomMessage);
     }
