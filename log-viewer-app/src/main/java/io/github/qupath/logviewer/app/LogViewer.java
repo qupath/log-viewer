@@ -11,14 +11,17 @@ import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
@@ -29,18 +32,28 @@ import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class LogViewerController implements LoggerController {
+public class LogViewer extends BorderPane implements LoggerController {
     private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(System.getProperty("timestamp.format", "HH:mm:ss"));
-    private final static Logger logger = LoggerFactory.getLogger(LogViewerController.class);
+    private final static Logger logger = LoggerFactory.getLogger(LogViewer.class);
 
     @FXML
     private Menu threadFilterMenu;
     @FXML
-    private Pane displayedLogLevelsGroup;
+    private HBox displayedLogLevelsGroup;
     @FXML
     private ToggleButton regexButton;
     @FXML
     private TextField messageFilter;
+    @FXML
+    private ToggleButton displayErrorButton;
+    @FXML
+    private ToggleButton displayWarnButton;
+    @FXML
+    private ToggleButton displayInfoButton;
+    @FXML
+    private ToggleButton displayDebugButton;
+    @FXML
+    private ToggleButton displayTraceButton;
     @FXML
     private TableView<LogMessage> tableViewLog;
     @FXML
@@ -59,20 +72,28 @@ public class LogViewerController implements LoggerController {
     private TextArea textAreaLog;
     @FXML
     private Label itemCounter;
-    @FXML
-    private ResourceBundle resources;
+    private final ResourceBundle resources = ResourceBundle.getBundle("io.github.qupath.logviewer.app.strings");
     private final ObservableSet<String> threadNames = FXCollections.observableSet();
     private final LongProperty nWarnings = new SimpleLongProperty(0),
                             nErrors = new SimpleLongProperty(0),
                             nTotalLogs = new SimpleLongProperty(0),
                             nVisibleLogs = new SimpleLongProperty(0);
-    private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList() ;
-    private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
+    private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList();
     private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);
+    private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
+    private final LogMessageCounts logMessageCounts = new LogMessageCounts();
     private final ObjectProperty<ContentDisplay> logLevelContentDisplay = new SimpleObjectProperty<>(ContentDisplay.GRAPHIC_ONLY);
     private final ObservableSet<String> displayedThreads = FXCollections.observableSet();
     private LoggerManager loggerManager;
 
+    public LogViewer() throws IOException {
+        var url = getClass().getResource("log-viewer.fxml");
+
+        FXMLLoader loader = new FXMLLoader(url, resources);
+        loader.setRoot(this);
+        loader.setController(this);
+        loader.load();
+    }
 
     @Override
     public void addLogMessage(io.github.qupath.logviewer.api.LogMessage logMessage) {
@@ -149,6 +170,20 @@ public class LogViewerController implements LoggerController {
     }
 
     private void setUpDisplayedLogLevels() {
+        allLogs.addListener((ListChangeListener<? super LogMessage>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    change.getAddedSubList().forEach(logMessageCounts::countMessage);
+                }
+            }
+        });
+
+        displayErrorButton.disableProperty().bind(logMessageCounts.errorLevelCountsProperty().isEqualTo(0));
+        displayWarnButton.disableProperty().bind(logMessageCounts.warnLevelCountsProperty().isEqualTo(0));
+        displayInfoButton.disableProperty().bind(logMessageCounts.infoLevelCountsProperty().isEqualTo(0));
+        displayDebugButton.disableProperty().bind(logMessageCounts.debugLevelCountsProperty().isEqualTo(0));
+        displayTraceButton.disableProperty().bind(logMessageCounts.traceLevelCountsProperty().isEqualTo(0));
+
         displayedLogLevels.addListener((SetChangeListener<? super Level>) change -> {
             updateLogMessageFilter();
 
@@ -180,10 +215,10 @@ public class LogViewerController implements LoggerController {
         tableViewLog.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         tableViewLog.setItems(filteredLogs);
 
-        colRow.setCellValueFactory(LogViewerController::tableRowCellFactory);
+        colRow.setCellValueFactory(LogViewer::tableRowCellFactory);
         colRow.setCellFactory(column -> new TableRowTableCell());
 
-        colLogger.setCellValueFactory(LogViewerController::loggerStringValueFactory);
+        colLogger.setCellValueFactory(LogViewer::loggerStringValueFactory);
         colLogger.setCellFactory(column -> {
             var cell = new TableCell<LogMessage, String>() {
                 @Override
@@ -196,13 +231,13 @@ public class LogViewerController implements LoggerController {
             return cell;
         });
 
-        colTimestamp.setCellValueFactory(LogViewerController::timestampStringValueFactory);
-        colThread.setCellValueFactory(LogViewerController::threadStringValueFactory);
+        colTimestamp.setCellValueFactory(LogViewer::timestampStringValueFactory);
+        colThread.setCellValueFactory(LogViewer::threadStringValueFactory);
 
-        colLevel.setCellValueFactory(LogViewerController::logLevelValueFactory);
+        colLevel.setCellValueFactory(LogViewer::logLevelValueFactory);
         colLevel.setCellFactory(column -> new LogLabelTableCell(logLevelContentDisplay));
 
-        colMessage.setCellValueFactory(LogViewerController::logMessageValueFactory);
+        colMessage.setCellValueFactory(LogViewer::logMessageValueFactory);
     }
 
     private void setUpLogCounter() {
@@ -336,6 +371,6 @@ public class LogViewerController implements LoggerController {
         threadFilterMenu.getItems().add(cmItem);
         displayedThreads.add(s);
         cmItem.setSelected(true);
-        cmItem.setOnAction(LogViewerController.this::onDisplayedThreadsItemSelected);
+        cmItem.setOnAction(LogViewer.this::onDisplayedThreadsItemSelected);
     }
 }

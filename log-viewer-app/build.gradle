@@ -44,7 +44,7 @@ application {
     mainClass = 'io.github.qupath.logviewer.app.LogViewerApp'
 }
 
-tasks.named('test') {
+test {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
