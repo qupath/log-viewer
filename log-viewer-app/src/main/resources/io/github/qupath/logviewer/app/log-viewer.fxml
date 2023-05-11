@@ -7,12 +7,14 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
@@ -37,7 +39,6 @@
                         <ContextMenu>
                             <items>
                                 <MenuItem mnemonicParsing="false" onAction="#copySelectedLines" text="%Table.Action.copy" />
-                                <MenuItem mnemonicParsing="false" onAction="#copySelectedMessages" text="%Table.Action.copyMessages" />
                             </items>
                         </ContextMenu>
                     </contextMenu>
@@ -63,7 +64,7 @@
    <top>
        <MenuBar BorderPane.alignment="CENTER">
            <Menu mnemonicParsing="false" text="%Menu.File">
-               <MenuItem mnemonicParsing="false" text="%Action.File.close" />
+               <MenuItem mnemonicParsing="false" onAction="#close" text="%Action.File.close" />
            </Menu>
            <Menu mnemonicParsing="false" text="%Menu.Edit">
                <MenuItem mnemonicParsing="false" onAction="#copySelectedLines" text="%Action.Edit.copy">
@@ -72,18 +73,21 @@
                    </accelerator>
                </MenuItem>
            </Menu>
-           <Menu fx:id="threadFilterMenu" mnemonicParsing="false" text="%Menu.Thread" />
+           <Menu fx:id="threadFilterMenu" mnemonicParsing="false" text="%Menu.Thread">
+               <RadioMenuItem fx:id="allThreadsItem" mnemonicParsing="false" onAction="#onThreadItemSelected" selected="true" text="%Action.Thread.allThreads">
+               <toggleGroup>
+                  <ToggleGroup fx:id="threadFilterGroup" />
+               </toggleGroup></RadioMenuItem>
+            <SeparatorMenuItem mnemonicParsing="false" />
+           </Menu>
            <Menu mnemonicParsing="false" text="%Menu.Level">
-               <Menu mnemonicParsing="false" onShowing="#onMinimumLogLevelMenuClicked" text="%Menu.Level.MinimumLogLevel">
+               <Menu mnemonicParsing="false" onShowing="#onMinimumLogLevelMenuClicked" text="%Menu.Level.minimumLogLevel">
                    <RadioMenuItem mnemonicParsing="false" onAction="#onMinimumLogLevelItemClicked" selected="true" text="ERROR" />
                    <RadioMenuItem mnemonicParsing="false" onAction="#onMinimumLogLevelItemClicked" selected="true" text="WARN" />
                    <RadioMenuItem mnemonicParsing="false" onAction="#onMinimumLogLevelItemClicked" selected="true" text="INFO" />
                    <RadioMenuItem mnemonicParsing="false" onAction="#onMinimumLogLevelItemClicked" selected="true" text="DEBUG" />
                    <RadioMenuItem mnemonicParsing="false" onAction="#onMinimumLogLevelItemClicked" selected="true" text="TRACE" />
                </Menu>
-           </Menu>
-           <Menu mnemonicParsing="false" text="%Menu.Help">
-               <MenuItem mnemonicParsing="false" text="%Menu.Help.about" />
            </Menu>
        </MenuBar>
    </top>
