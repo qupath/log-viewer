@@ -1,4 +1,4 @@
-module logviewer {
+module logviewer.app {
     requires javafx.controls;
     requires javafx.fxml;
     requires org.slf4j;

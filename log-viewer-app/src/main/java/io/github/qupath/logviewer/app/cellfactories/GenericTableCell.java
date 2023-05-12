@@ -4,6 +4,7 @@ import io.github.qupath.logviewer.api.LogMessage;
 import javafx.scene.control.TableCell;
 import org.slf4j.event.Level;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 public class GenericTableCell extends TableCell<LogMessage, LogMessage> {
@@ -22,11 +23,8 @@ public class GenericTableCell extends TableCell<LogMessage, LogMessage> {
         } else {
             setText(logMessageToString.apply(item));
 
-            if (item.level() == Level.ERROR) {
-                setStyle("-fx-text-fill: red");
-            } else {
-                setStyle("-fx-text-fill: black");
-            }
+            getStyleClass().removeAll(Arrays.stream(Level.values()).map(l -> l.name().toLowerCase()).toList());
+            getStyleClass().add(item.level().name().toLowerCase());
         }
     }
 }

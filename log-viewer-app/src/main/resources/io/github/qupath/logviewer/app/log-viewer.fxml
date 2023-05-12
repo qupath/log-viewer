@@ -64,7 +64,10 @@
    <top>
        <MenuBar BorderPane.alignment="CENTER">
            <Menu mnemonicParsing="false" text="%Menu.File">
-               <MenuItem mnemonicParsing="false" onAction="#close" text="%Action.File.close" />
+               <MenuItem mnemonicParsing="false" onAction="#close" text="%Action.File.close">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+               </accelerator></MenuItem>
            </Menu>
            <Menu mnemonicParsing="false" text="%Menu.Edit">
                <MenuItem mnemonicParsing="false" onAction="#copySelectedLines" text="%Action.Edit.copy">

@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.ServiceLoader;
@@ -35,6 +36,7 @@ import java.util.function.Predicate;
 public class LogViewer extends BorderPane implements LoggerController {
     private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(System.getProperty("timestamp.format", "HH:mm:ss"));
     private final static Logger logger = LoggerFactory.getLogger(LogViewer.class);
+    private final static ResourceBundle resources = ResourceBundle.getBundle("io.github.qupath.logviewer.app.strings");
 
     @FXML
     private Menu threadFilterMenu;
@@ -76,7 +78,6 @@ public class LogViewer extends BorderPane implements LoggerController {
     private TextArea textAreaLog;
     @FXML
     private Label itemCounter;
-    private final ResourceBundle resources = ResourceBundle.getBundle("io.github.qupath.logviewer.app.strings");
     private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList();
     private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);
     private final LogMessageCounts allLogsMessageCounts = new LogMessageCounts(allLogs);
@@ -93,6 +94,8 @@ public class LogViewer extends BorderPane implements LoggerController {
         loader.setRoot(this);
         loader.setController(this);
         loader.load();
+
+        setUpLoggerManager();
     }
 
     @Override
@@ -106,7 +109,6 @@ public class LogViewer extends BorderPane implements LoggerController {
 
     @FXML
     private void initialize() {
-        setUpLoggerManager();
         setUpDisplayedLogLevels();
         setUpMessageFilter();
         setUpTable();
@@ -311,11 +313,8 @@ public class LogViewer extends BorderPane implements LoggerController {
                 message += "\n" + sw;
             }
 
-            if (logMessage.level() == Level.ERROR) {
-                textAreaLog.setStyle("-fx-text-fill: red");
-            } else {
-                textAreaLog.setStyle("-fx-text-fill: black");
-            }
+            textAreaLog.getStyleClass().removeAll(Arrays.stream(Level.values()).map(l -> l.name().toLowerCase()).toList());
+            textAreaLog.getStyleClass().add(logMessage.level().name().toLowerCase());
         }
 
         textAreaLog.setText(message);
