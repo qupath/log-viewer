@@ -26,7 +26,8 @@ public class LogViewerApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Scene scene = new Scene(new LogViewer());
+        LogViewer logViewer = new LogViewer();
+        Scene scene = new Scene(logViewer);
 
         primaryStage.setScene(scene);
         primaryStage.show();

@@ -6,14 +6,14 @@ import java.util.regex.Pattern;
 import java.util.function.Predicate;
 import java.util.regex.PatternSyntaxException;
 
-public class LogMessagePredicates {
+class LogMessagePredicates {
     public static Predicate<LogMessage> createPredicateFromRegex(String regex) {
         if (regex == null || regex.isEmpty())
             return logMessage -> true;
 
         try {
             Pattern pattern = Pattern.compile(regex);
-            return logMessage -> pattern.matcher(logMessage.message()).find();
+            return logMessage -> logMessage.message() != null && pattern.matcher(logMessage.message()).find();
         } catch (PatternSyntaxException e) {
             return logMessage -> false;
         }
@@ -24,6 +24,6 @@ public class LogMessagePredicates {
             return logMessage -> true;
 
         String textLower = text.toLowerCase();
-        return logMessage -> logMessage.message().toLowerCase().contains(textLower);
+        return logMessage -> logMessage.message() != null && logMessage.message().toLowerCase().contains(textLower);
     }
 }

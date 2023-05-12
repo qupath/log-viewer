@@ -4,6 +4,8 @@ import org.slf4j.event.Level;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public record LogMessage(
@@ -15,7 +17,14 @@ public record LogMessage(
         Throwable throwable
 ) {
     public String toReadableString() {
-        String readableString = level.toString() + "\t" + threadName + "\t" + loggerName + "\t" + new Date(timestamp) + "\t" + message;
+        Format formatter = new SimpleDateFormat("kk:mm:ss.SS");
+
+        String readableString =
+                formatter.format(new Date(timestamp())) + "\t"
+                + "[" + threadName + "]" + "\t"
+                + level + "\t"
+                + loggerName + "\t"
+                + message;
 
         if (throwable != null) {
             StringWriter sw = new StringWriter();

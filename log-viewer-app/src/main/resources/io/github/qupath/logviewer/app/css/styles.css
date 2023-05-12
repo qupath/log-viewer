@@ -29,6 +29,10 @@
     -fx-alignment: center-left;
 }
 
+.error {
+    -fx-text-fill: red;
+}
+
 .displayed-log-levels .toggle-button {
     -fx-font-size: 10;
 }
