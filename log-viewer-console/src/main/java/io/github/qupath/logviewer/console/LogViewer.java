@@ -4,9 +4,6 @@ import io.github.qupath.logviewer.api.LogMessage;
 import io.github.qupath.logviewer.api.controller.LoggerController;
 import io.github.qupath.logviewer.api.manager.LoggerManager;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-
-import java.io.IOException;
 import java.util.ServiceLoader;
 
 import javafx.scene.control.TextArea;
