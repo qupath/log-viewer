@@ -7,9 +7,18 @@ import org.slf4j.event.Level;
 import java.util.Arrays;
 import java.util.function.Function;
 
+/**
+ * Generic cell factory used by all columns.
+ * It sets the text and style of each cell.
+ */
 public class GenericTableCell extends TableCell<LogMessage, LogMessage> {
     private final Function<LogMessage, String> logMessageToString;
 
+    /**
+     * Creates a generic cell factory.
+     *
+     * @param logMessageToString  the function indicating which field of LogMessage to display
+     */
     public GenericTableCell(Function<LogMessage, String> logMessageToString) {
         this.logMessageToString = logMessageToString;
     }

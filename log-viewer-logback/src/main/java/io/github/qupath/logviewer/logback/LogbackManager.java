@@ -1,42 +1,45 @@
 package io.github.qupath.logviewer.logback;
 
 import ch.qos.logback.classic.LoggerContext;
-import io.github.qupath.logviewer.api.LoggerController;
-import io.github.qupath.logviewer.api.LoggerManager;
+import io.github.qupath.logviewer.api.controller.LoggerController;
+import io.github.qupath.logviewer.api.manager.LoggerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
+/**
+ * Manager setting up and managing the Logback logger.
+ */
 public class LogbackManager implements LoggerManager {
-    private final static Logger logger = LoggerFactory.getLogger(io.github.qupath.logviewer.logback.LogbackManager.class);
-    private final static ch.qos.logback.classic.Logger root = getRootLogger();
+    private final static Logger slf4jLogger = LoggerFactory.getLogger(io.github.qupath.logviewer.logback.LogbackManager.class);
+    private final static ch.qos.logback.classic.Logger logbackRootLogger = getRootLogger();
 
     @Override
-    public void addAppender(LoggerController controller) {
-        if (root != null) {
+    public void addController(LoggerController controller) {
+        if (logbackRootLogger != null) {
             var appender = new LogViewerAppender(controller);
             appender.setName("LogViewer");
-            appender.setContext(root.getLoggerContext());
+            appender.setContext(logbackRootLogger.getLoggerContext());
             appender.start();
-            root.addAppender(appender);
+            logbackRootLogger.addAppender(appender);
         } else {
-            logger.warn("Cannot add appender to root logger using logback!");
+            slf4jLogger.warn("Cannot add appender to root logger using logback!");
         }
     }
 
     @Override
     public void setRootLogLevel(Level level) {
-        if (root != null) {
-            root.setLevel(ch.qos.logback.classic.Level.convertAnSLF4JLevel(level));
+        if (logbackRootLogger != null) {
+            logbackRootLogger.setLevel(ch.qos.logback.classic.Level.convertAnSLF4JLevel(level));
         }
     }
 
     @Override
     public Level getRootLogLevel() {
-        return root == null ? null : toSlf4JLevel(root.getLevel());
+        return logbackRootLogger == null ? null : toSlf4JLevel(logbackRootLogger.getLevel());
     }
 
-    public static Level toSlf4JLevel(ch.qos.logback.classic.Level level) {
+    static Level toSlf4JLevel(ch.qos.logback.classic.Level level) {
         return switch (level.toInt()) {
             case ch.qos.logback.classic.Level.TRACE_INT, ch.qos.logback.classic.Level.ALL_INT -> Level.TRACE;
             case ch.qos.logback.classic.Level.DEBUG_INT -> Level.DEBUG;
@@ -47,12 +50,12 @@ public class LogbackManager implements LoggerManager {
         };
     }
 
-    private static ch.qos.logback.classic.Logger getRootLogger() {
+    static ch.qos.logback.classic.Logger getRootLogger() {
         var context = getLoggerContext();
         return context == null ? null : context.getLogger(Logger.ROOT_LOGGER_NAME);
     }
 
-    private static LoggerContext getLoggerContext() {
+    static LoggerContext getLoggerContext() {
         if (LoggerFactory.getILoggerFactory() instanceof LoggerContext context)
             return context;
         return null;

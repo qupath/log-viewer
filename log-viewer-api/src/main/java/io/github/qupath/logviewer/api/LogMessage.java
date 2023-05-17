@@ -8,6 +8,16 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * A message logged by a logging framework.
+ *
+ * @param loggerName  the name of the logging class
+ * @param timestamp  the timestamp of the message
+ * @param threadName  the thread from which the message was logged
+ * @param level  the log level
+ * @param message  the text description of the message
+ * @param throwable  the throwable of the message, may be null if not defined
+ */
 public record LogMessage(
         String loggerName,
         long timestamp,
@@ -16,6 +26,12 @@ public record LogMessage(
         String message,
         Throwable throwable
 ) {
+    /**
+     * Parse the log message to a human-readable format, for example:
+     * {@code 10:56:14.579  [JavaFX Application Thread] ERROR   io.github.qupath.logviewer.app.LogViewerApp Exception   java.lang.RuntimeException:...}
+     *
+     * @return the log message with a readable format
+     */
     public String toReadableString() {
         Format formatter = new SimpleDateFormat("kk:mm:ss.SS");
 
