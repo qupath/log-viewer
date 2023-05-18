@@ -16,10 +16,20 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
+/**
+ * Application starting the LogViewer.
+ * Used when the LogViewer is launched as a standalone application.
+ */
 public class LogViewerApp extends Application {
     private final static Logger logger = LoggerFactory.getLogger(LogViewerApp.class);
     private ScheduledExecutorService executor;
 
+    /**
+     * Start the application.
+     *
+     * @param args  the command-line arguments. Start the application with "-h" or "--help"
+     *              to display a list of supported arguments.
+     */
     public static void main(String[] args) {
         Application.launch(LogViewerApp.class, args);
     }

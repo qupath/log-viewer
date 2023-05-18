@@ -3,9 +3,9 @@ rootProject.name = 'qupath-log-viewer'
 // Main application
 include 'log-viewer-app'
 
-// Console application
-include 'log-viewer-console-simple'
-include 'log-viewer-console-advanced'
+// Console applications
+include 'log-viewer-console'
+include 'log-viewer-console-colored'
 
 // Logging module abstraction
 include 'log-viewer-api'

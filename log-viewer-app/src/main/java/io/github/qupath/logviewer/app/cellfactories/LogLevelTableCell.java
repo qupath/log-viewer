@@ -9,11 +9,19 @@ import javafx.scene.shape.Circle;
 
 import java.util.function.Function;
 
+/**
+ * Cell factory of the log level column.
+ * It creates an icon representing the log level.
+ */
 public class LogLevelTableCell extends GenericTableCell {
-
     private final Tooltip tooltip = new Tooltip();
     private final Circle icon = new Circle(5.0);
 
+    /**
+     * Creates a cell factory for the log level column.
+     *
+     * @param logMessageToString  the function indicating which field of LogMessage to display
+     */
     public LogLevelTableCell(Function<LogMessage, String> logMessageToString) {
         super(logMessageToString);
 

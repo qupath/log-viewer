@@ -1,11 +1,11 @@
 package io.github.qupath.logviewer.reload4j;
 
 import io.github.qupath.logviewer.api.LogMessage;
-import io.github.qupath.logviewer.api.LoggerController;
+import io.github.qupath.logviewer.api.controller.LoggerController;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 
-public class LogViewerAppender extends AppenderSkeleton {
+class LogViewerAppender extends AppenderSkeleton {
     private final LoggerController controller;
     private boolean isClosed = false;
 

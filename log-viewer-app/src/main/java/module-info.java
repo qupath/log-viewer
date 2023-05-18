@@ -1,3 +1,8 @@
+/**
+ * This module provides a JavaFX application displaying live logs in a table.
+ * It supports filtering logs by level, thread, and description.
+ * Any extra text (e.g. stack traces) is shown in a text area below the main table.
+ */
 module logviewer.app {
     requires javafx.controls;
     requires javafx.fxml;
@@ -7,7 +12,7 @@ module logviewer.app {
 
     exports io.github.qupath.logviewer.app;
 
-    uses io.github.qupath.logviewer.api.LoggerManager;
+    uses io.github.qupath.logviewer.api.manager.LoggerManager;
 
     opens io.github.qupath.logviewer.app to javafx.fxml;
 }

@@ -1,8 +1,8 @@
 package io.github.qupath.logviewer.app;
 
 import io.github.qupath.logviewer.api.LogMessage;
-import io.github.qupath.logviewer.api.LoggerController;
-import io.github.qupath.logviewer.api.LoggerManager;
+import io.github.qupath.logviewer.api.controller.LoggerController;
+import io.github.qupath.logviewer.api.manager.LoggerManager;
 import io.github.qupath.logviewer.app.cellfactories.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -19,6 +19,7 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -27,12 +28,14 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.ResourceBundle;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.function.Predicate;
 
+/**
+ * UI controller of the application.
+ * It's a JavaFX <a href="https://docs.oracle.com/javase/8/javafx/api/javafx/scene/Parent.html">parent</a>,
+ * so it can be added to a JavaFX scene (see the implementation of {@link LogViewerApp#start(Stage) LogViewerApp.start}).
+ */
 public class LogViewer extends BorderPane implements LoggerController {
     private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(System.getProperty("timestamp.format", "HH:mm:ss"));
     private final static Logger logger = LoggerFactory.getLogger(LogViewer.class);
@@ -83,10 +86,16 @@ public class LogViewer extends BorderPane implements LoggerController {
     private final LogMessageCounts allLogsMessageCounts = new LogMessageCounts(allLogs);
     private final LogMessageCounts filteredLogsMessageCounts = new LogMessageCounts(filteredLogs);
     private final ObservableSet<String> allThreads = FXCollections.observableSet();
-    private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
     private final ObservableSet<String> displayedThreads = FXCollections.observableSet();
+    private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
+    private final Collection<String> allLogLevelNamesToLowerCase = Arrays.stream(Level.values()).map(LogViewer::toStyleClass).toList();
     private LoggerManager loggerManager;
 
+    /**
+     * Create a new LogViewer.
+     *
+     * @throws IOException if an error occurs when loading the FXML file containing the UI
+     */
     public LogViewer() throws IOException {
         var url = getClass().getResource("log-viewer.fxml");
 
@@ -98,6 +107,12 @@ public class LogViewer extends BorderPane implements LoggerController {
         setUpLoggerManager();
     }
 
+    /**
+     * Displays a log message in the table.
+     * The message may not directly appear if filtered.
+     *
+     * @param logMessage  the log message to display
+     */
     @Override
     public void addLogMessage(LogMessage logMessage) {
         if (Platform.isFxApplicationThread()) {
@@ -169,13 +184,17 @@ public class LogViewer extends BorderPane implements LoggerController {
         }
     }
 
+    private static String toStyleClass(Level level) {
+        return level.name().toLowerCase();
+    }
+
     private void setUpLoggerManager() {
         ServiceLoader<LoggerManager> serviceLoader = ServiceLoader.load(LoggerManager.class);
         var allProviders = serviceLoader.iterator();
 
         if (allProviders.hasNext()) {
             loggerManager = allProviders.next();
-            loggerManager.addAppender(this);
+            loggerManager.addController(this);
 
             if (allProviders.hasNext()) {
                 logger.atWarn().setMessage("More than one logging manager detected. The log messages may not be correctly forwarded.").log();
@@ -313,8 +332,8 @@ public class LogViewer extends BorderPane implements LoggerController {
                 message += "\n" + sw;
             }
 
-            textAreaLog.getStyleClass().removeAll(Arrays.stream(Level.values()).map(l -> l.name().toLowerCase()).toList());
-            textAreaLog.getStyleClass().add(logMessage.level().name().toLowerCase());
+            textAreaLog.getStyleClass().removeAll(allLogLevelNamesToLowerCase);
+            textAreaLog.getStyleClass().add(toStyleClass(logMessage.level()));
         }
 
         textAreaLog.setText(message);

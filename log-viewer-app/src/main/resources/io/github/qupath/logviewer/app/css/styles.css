@@ -1,38 +1,45 @@
-.log-level.info {
-    -fx-fill: none;
+/* Define level colors */
+.root {
+    trace: darkgray;
+    debug: cornflowerblue;
+    warn: gold;
+    error: crimson;
 }
 
-.log-level.debug {
-    -fx-fill: cornflowerblue;
+/* Buttons to show/hide log levels */
+.displayed-log-levels .toggle-button {
+    -fx-font-size: 10;
 }
 
-.log-level.trace {
-    -fx-stroke: darkgray;
-    -fx-stroke-width: 2;
-    -fx-stroke-type: inside;
-    -fx-fill: none;
-}
-
-.log-level.error {
-    -fx-fill: crimson;
-}
-
-.log-level.warn {
-    -fx-fill: gold;
-}
-
+/* Table cells */
 .table-cell {
     -fx-alignment: center;
 }
-
 .col-message.table-cell {
     -fx-alignment: center-left;
 }
 
-.error {
-    -fx-text-fill: red;
+/* Log level icons */
+.log-level.trace {
+    -fx-stroke: trace;
+    -fx-stroke-width: 2;
+    -fx-stroke-type: inside;
+    -fx-fill: none;
+}
+.log-level.debug {
+    -fx-fill: debug;
+}
+.log-level.info {
+    -fx-fill: none;
+}
+.log-level.warn {
+    -fx-fill: warn;
+}
+.log-level.error {
+    -fx-fill: error;
 }
 
-.displayed-log-levels .toggle-button {
-    -fx-font-size: 10;
+/* Text in table */
+.error {
+    -fx-text-fill: error;
 }
