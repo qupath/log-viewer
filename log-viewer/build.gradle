@@ -1,0 +1,40 @@
+plugins {
+    // Apply the Java library plugin to add support for building a library in Java.
+    id 'java-library'
+
+    // Add JavaFX plugin.
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    // Use logging abstraction. This also import SLF4J.
+    implementation project(':log-viewer-api')
+
+    // Use JUnit Jupiter for testing.
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+
+    // Use TestFX for testing UI.
+    testImplementation "org.testfx:testfx-core:4.0.16-alpha"
+    testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+javafx {
+    version = "20"
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+test {
+    // Use JUnit Platform for unit tests.
+    useJUnitPlatform()
+}

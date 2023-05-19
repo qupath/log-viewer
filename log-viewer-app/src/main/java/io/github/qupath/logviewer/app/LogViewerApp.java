@@ -1,15 +1,20 @@
 package io.github.qupath.logviewer.app;
 
+import io.github.qupath.logviewer.LogViewer;
+import io.github.qupath.logviewer.console.ConsoleLogViewer;
+import io.github.qupath.logviewer.console_rich.RichConsoleLogViewer;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
@@ -17,10 +22,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 /**
- * Application starting the LogViewer.
- * Used when the LogViewer is launched as a standalone application.
+ * Application starting one of the LogViewer applications.
  */
 public class LogViewerApp extends Application {
+    private final static String LOG_VIEWER_NAME = "log-viewer";
+    private final static String CONSOLE_NAME = "console";
+    private final static String RICH_CONSOLE_NAME = "rich-console";
     private final static Logger logger = LoggerFactory.getLogger(LogViewerApp.class);
     private ScheduledExecutorService executor;
 
@@ -36,13 +43,7 @@ public class LogViewerApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        LogViewer logViewer = new LogViewer();
-        Scene scene = new Scene(logViewer);
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
-        handleParameters(scene);
+        handleParameters(primaryStage);
     }
 
     @Override
@@ -52,19 +53,39 @@ public class LogViewerApp extends Application {
         }
     }
 
-    private void handleParameters(Scene scene) {
+    private void handleParameters(Stage stage) throws IOException {
         Parameters parameters = getParameters();
+        List<String> unNamedParameters = parameters.getUnnamed();
+        Map<String, String> namedParameters = parameters.getNamed();
 
-        if (parameters.getRaw().contains("-h") || parameters.getRaw().contains("--help")) {
+        if (unNamedParameters.contains("-h") || unNamedParameters.contains("--help")) {
             logger.info("Options:");
-            logger.info("-t, --test           Log random messages");
-            logger.info("-h, --help           Displays this help message");
+            logger.info("--app=appName          Start the application indicated by \"appName\". \"appName\" must one of \"" +
+                    LOG_VIEWER_NAME + "\", \"" + CONSOLE_NAME + "\", or \"" + RICH_CONSOLE_NAME + "\".");
+            logger.info("-t, --test             Log random messages.");
+            logger.info("-h, --help             Displays this help message.");
+            System.exit(0);
+        }
+
+        if (namedParameters.containsKey("app")) {
+            Parent app = switch (namedParameters.get("app")) {
+                case LOG_VIEWER_NAME -> new LogViewer();
+                case CONSOLE_NAME -> new ConsoleLogViewer();
+                case RICH_CONSOLE_NAME -> new RichConsoleLogViewer();
+                default -> throw new AssertionError(
+                        "Invalid application name: " + namedParameters.get("app") + ". Use -h or --help to see the available options."
+                );
+            };
+
+            Scene scene = new Scene(app, 800, 600);
+            stage.setScene(scene);
+            stage.show();
+        } else {
+            logger.warn("No application provided. Use -h or --help to see the available parameters.");
             System.exit(0);
         }
 
         if (parameters.getRaw().contains("-t") || parameters.getRaw().contains("--test")) {
-            scene.addEventHandler(MouseEvent.ANY, LogViewerApp::logMouseEvent);
-
             logger.info("Here's my first log message, for information");
             try {
                 throw new RuntimeException("Here is a runtime exception");
@@ -77,12 +98,6 @@ public class LogViewerApp extends Application {
 
             executor = Executors.newScheduledThreadPool(1);
             executor.scheduleAtFixedRate(() -> logSingleRandomMessage(-1), 0, 1, TimeUnit.SECONDS);
-        }
-    }
-
-    private static void logMouseEvent(MouseEvent event) {
-        if (event.getEventType() != MouseEvent.MOUSE_MOVED && event.getEventType() != MouseEvent.MOUSE_DRAGGED) {
-            logger.info("Mouse event: {} at ({}, {})", event.getEventType(), event.getX(), event.getY());
         }
     }
 

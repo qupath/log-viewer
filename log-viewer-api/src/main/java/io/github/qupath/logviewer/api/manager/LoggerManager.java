@@ -29,4 +29,11 @@ public interface LoggerManager {
      * @return the log level of the root logger
      */
     Level getRootLogLevel();
+
+    /**
+     * Indicates if the current logging framework used by SLF4J is this one
+     *
+     * @return true if this logging framework is used by SLF4J
+     */
+    boolean isFrameworkActive();
 }

@@ -17,7 +17,7 @@ public class LogbackManager implements LoggerManager {
     @Override
     public void addController(LoggerController controller) {
         if (logbackRootLogger != null) {
-            var appender = new LogViewerAppender(controller);
+            var appender = new LogbackAppender(controller);
             appender.setName("LogViewer");
             appender.setContext(logbackRootLogger.getLoggerContext());
             appender.start();
@@ -37,6 +37,11 @@ public class LogbackManager implements LoggerManager {
     @Override
     public Level getRootLogLevel() {
         return logbackRootLogger == null ? null : toSlf4JLevel(logbackRootLogger.getLevel());
+    }
+
+    @Override
+    public boolean isFrameworkActive() {
+        return LoggerFactory.getILoggerFactory().getClass().toString().contains("logback");
     }
 
     static Level toSlf4JLevel(ch.qos.logback.classic.Level level) {

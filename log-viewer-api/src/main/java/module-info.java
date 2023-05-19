@@ -11,6 +11,7 @@
  * a logging framework.</p>
  */
 module logviewer.api {
+    uses io.github.qupath.logviewer.api.manager.LoggerManager;
     requires transitive org.slf4j;      // Part of the public API uses types of org.slf4j
 
     exports io.github.qupath.logviewer.api;

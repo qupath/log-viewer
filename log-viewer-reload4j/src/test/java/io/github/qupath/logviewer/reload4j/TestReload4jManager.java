@@ -1,6 +1,8 @@
 package io.github.qupath.logviewer.reload4j;
 
 import io.github.qupath.logviewer.api.LogMessage;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TestReload4jManager {
     private final static Logger slf4jLogger = LoggerFactory.getLogger(Reload4jManager.class);
     private final static org.apache.log4j.Logger reload4jLogger = org.apache.log4j.Logger.getRootLogger();

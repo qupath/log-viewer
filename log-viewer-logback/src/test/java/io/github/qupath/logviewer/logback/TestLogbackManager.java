@@ -1,6 +1,8 @@
 package io.github.qupath.logviewer.logback;
 
 import io.github.qupath.logviewer.api.LogMessage;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,7 @@ import java.util.stream.IntStream;
 import static io.github.qupath.logviewer.logback.LogbackManager.getRootLogger;
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TestLogbackManager {
     private final static Logger slf4jLogger = LoggerFactory.getLogger(LogbackManager.class);
     private final static ch.qos.logback.classic.Logger logbackLogger = getRootLogger();
