@@ -2,7 +2,7 @@
  * This module provides a way to link a logging framework
  * with an application that responds to log messages.
  *
- * <p>The {@link io.github.qupath.logviewer.api.controller api.controller}
+ * <p>The {@link io.github.qupath.logviewer.api.listener api.listener}
  * is the package that should be used by applications responding
  * to logged messages.</p>
  *
@@ -11,9 +11,10 @@
  * a logging framework.</p>
  */
 module logviewer.api {
+    uses io.github.qupath.logviewer.api.manager.LoggerManager;
     requires transitive org.slf4j;      // Part of the public API uses types of org.slf4j
 
     exports io.github.qupath.logviewer.api;
-    exports io.github.qupath.logviewer.api.controller;
+    exports io.github.qupath.logviewer.api.listener;
     exports io.github.qupath.logviewer.api.manager;
 }

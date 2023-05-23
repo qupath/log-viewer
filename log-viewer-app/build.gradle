@@ -15,21 +15,22 @@ repositories {
 }
 
 dependencies {
-    // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+    // Use applications.
+    implementation project(':log-viewer')
+    implementation project(':log-viewer-console')
+    implementation project(':log-viewer-console-rich')
 
-    // Use TestFX for testing UI.
-    testImplementation "org.testfx:testfx-core:4.0.16-alpha"
-    testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
-
-    // Use logging abstraction. This also import SLF4J.
-    implementation project(':log-viewer-api')
+    // Use SLF4J as interface for any logging framework.
+    implementation 'org.slf4j:slf4j-api:2.0.4'
 
     // Use Logback implementation.
-    implementation project(':log-viewer-logback')
+    runtimeOnly project(':log-viewer-logback')
 
     // Use reload4j implementation.
-    //implementation project(':log-viewer-reload4j')
+    runtimeOnly project(':log-viewer-reload4j')
+
+    // Use JDK implementation.
+    runtimeOnly project(':log-viewer-jdk')
 }
 
 java {
@@ -46,11 +47,6 @@ javafx {
 application {
     mainModule = 'logviewer.app'
     mainClass = 'io.github.qupath.logviewer.app.LogViewerApp'
-}
-
-test {
-    // Use JUnit Platform for unit tests.
-    useJUnitPlatform()
 }
 
 jlink {

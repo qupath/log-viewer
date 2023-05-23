@@ -1,7 +1,7 @@
 package io.github.qupath.logviewer.logback;
 
 import ch.qos.logback.classic.LoggerContext;
-import io.github.qupath.logviewer.api.controller.LoggerController;
+import io.github.qupath.logviewer.api.listener.LoggerListener;
 import io.github.qupath.logviewer.api.manager.LoggerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +15,9 @@ public class LogbackManager implements LoggerManager {
     private final static ch.qos.logback.classic.Logger logbackRootLogger = getRootLogger();
 
     @Override
-    public void addController(LoggerController controller) {
+    public void addListener(LoggerListener listener) {
         if (logbackRootLogger != null) {
-            var appender = new LogViewerAppender(controller);
+            var appender = new LogbackAppender(listener);
             appender.setName("LogViewer");
             appender.setContext(logbackRootLogger.getLoggerContext());
             appender.start();
@@ -37,6 +37,11 @@ public class LogbackManager implements LoggerManager {
     @Override
     public Level getRootLogLevel() {
         return logbackRootLogger == null ? null : toSlf4JLevel(logbackRootLogger.getLevel());
+    }
+
+    @Override
+    public boolean isFrameworkActive() {
+        return LoggerFactory.getILoggerFactory().getClass().toString().contains("logback");
     }
 
     static Level toSlf4JLevel(ch.qos.logback.classic.Level level) {

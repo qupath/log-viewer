@@ -1,0 +1,31 @@
+plugins {
+    // Apply the Java library plugin to add support for building a library in Java.
+    id 'java-library'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    // Use JUnit Jupiter for testing.
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+
+    // Use JDK 1.4 Reload4j Binding.
+    implementation 'org.slf4j:slf4j-jdk14:2.0.7'
+
+    // Use logging abstraction.
+    implementation project(':log-viewer-api')
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+test {
+    // Use JUnit Platform for unit tests.
+    useJUnitPlatform()
+}
