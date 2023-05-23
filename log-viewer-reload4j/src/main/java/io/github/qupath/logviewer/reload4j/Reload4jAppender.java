@@ -1,16 +1,16 @@
 package io.github.qupath.logviewer.reload4j;
 
 import io.github.qupath.logviewer.api.LogMessage;
-import io.github.qupath.logviewer.api.controller.LoggerController;
+import io.github.qupath.logviewer.api.listener.LoggerListener;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 
 class Reload4jAppender extends AppenderSkeleton {
-    private final LoggerController controller;
+    private final LoggerListener listener;
     private boolean isClosed = false;
 
-    public Reload4jAppender(LoggerController controller) {
-        this.controller = controller;
+    public Reload4jAppender(LoggerListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -26,7 +26,7 @@ class Reload4jAppender extends AppenderSkeleton {
                     event.getRenderedMessage(),
                     event.getThrowableInformation() == null ? null : event.getThrowableInformation().getThrowable()
             );
-            controller.addLogMessage(message);
+            listener.addLogMessage(message);
         }
     }
 

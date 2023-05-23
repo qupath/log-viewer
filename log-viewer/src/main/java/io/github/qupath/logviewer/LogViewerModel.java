@@ -1,7 +1,7 @@
 package io.github.qupath.logviewer;
 
 import io.github.qupath.logviewer.api.LogMessage;
-import io.github.qupath.logviewer.api.controller.LoggerController;
+import io.github.qupath.logviewer.api.listener.LoggerListener;
 import io.github.qupath.logviewer.api.manager.LoggerManager;
 import javafx.application.Platform;
 import javafx.beans.property.*;
@@ -12,7 +12,7 @@ import org.slf4j.event.Level;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-class LogViewerModel implements LoggerController {
+class LogViewerModel implements LoggerListener {
     private final BooleanProperty loggingFrameworkFoundProperty = new SimpleBooleanProperty();
     private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList();
     private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);
@@ -123,7 +123,7 @@ class LogViewerModel implements LoggerController {
 
         if (loggerManagerOptional.isPresent()) {
             loggerManager = loggerManagerOptional.get();
-            loggerManager.addController(this);
+            loggerManager.addListener(this);
         }
     }
 

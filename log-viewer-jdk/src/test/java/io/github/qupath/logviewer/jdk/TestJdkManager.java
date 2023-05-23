@@ -42,7 +42,7 @@ public class TestJdkManager {
     void Check_Message_Forwarded() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         JdkManager jdkManager = new JdkManager();
-        jdkManager.addController(logMessage -> latch.countDown());
+        jdkManager.addListener(logMessage -> latch.countDown());
         jdkManager.setRootLogLevel(Level.TRACE);
 
         slf4jLogger.info("A log message");
@@ -55,7 +55,7 @@ public class TestJdkManager {
         int N = 5;
         CountDownLatch latch = new CountDownLatch(N);
         JdkManager jdkManager = new JdkManager();
-        jdkManager.addController(logMessage -> latch.countDown());
+        jdkManager.addListener(logMessage -> latch.countDown());
         jdkManager.setRootLogLevel(Level.TRACE);
 
         for (int i=0; i<N; ++i) {
@@ -70,7 +70,7 @@ public class TestJdkManager {
         int N = 5;
         CountDownLatch latch = new CountDownLatch(N);
         JdkManager jdkManager = new JdkManager();
-        jdkManager.addController(logMessage -> latch.countDown());
+        jdkManager.addListener(logMessage -> latch.countDown());
         jdkManager.setRootLogLevel(Level.TRACE);
 
         IntStream.range(0, N)
@@ -84,7 +84,7 @@ public class TestJdkManager {
     void Check_Message_Not_Forwarded_If_Level_Too_Low() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         JdkManager jdkManager = new JdkManager();
-        jdkManager.addController(logMessage -> latch.countDown());
+        jdkManager.addListener(logMessage -> latch.countDown());
         jdkManager.setRootLogLevel(Level.ERROR);
 
         slf4jLogger.info("A log message");
@@ -104,7 +104,7 @@ public class TestJdkManager {
                 "A description",
                 new Throwable()
         );
-        jdkManager.addController(logMessage -> {
+        jdkManager.addListener(logMessage -> {
             // Test everything except the timestamp as it cannot be precisely predicted
             if (
                     logMessage.loggerName().equals(expectedLogMessage.loggerName()) &&

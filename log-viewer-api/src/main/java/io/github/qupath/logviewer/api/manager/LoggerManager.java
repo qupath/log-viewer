@@ -1,7 +1,7 @@
 package io.github.qupath.logviewer.api.manager;
 
 import io.github.qupath.logviewer.api.LogMessage;
-import io.github.qupath.logviewer.api.controller.LoggerController;
+import io.github.qupath.logviewer.api.listener.LoggerListener;
 import org.slf4j.event.Level;
 
 /**
@@ -9,12 +9,12 @@ import org.slf4j.event.Level;
  */
 public interface LoggerManager {
     /**
-     * Link this logging manager with a logger controller.
-     * Each new logged message should be forwarded to the logger controller via the {@link LoggerController#addLogMessage(LogMessage) addLogMessage} function.
+     * Link this logging manager with a logger listener.
+     * Each new logged message should be forwarded to the logger listener via the {@link LoggerListener#addLogMessage(LogMessage) addLogMessage} function.
      *
-     * @param controller  the controller which will receive the logged message
+     * @param listener  the listener which will receive the logged messages
      */
-    void addController(LoggerController controller);
+    void addListener(LoggerListener listener);
 
     /**
      * Set the log level of the root logger.

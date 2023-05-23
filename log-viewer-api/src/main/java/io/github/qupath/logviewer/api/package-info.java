@@ -1,5 +1,5 @@
 /**
  * Provides a record used to pass information between
- * controllers and managers.
+ * listeners and managers.
  */
 package io.github.qupath.logviewer.api;

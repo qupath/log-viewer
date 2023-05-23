@@ -1,22 +1,18 @@
 package io.github.qupath.logviewer;
 
 import io.github.qupath.logviewer.api.LogMessage;
-import io.github.qupath.logviewer.api.controller.LoggerController;
-import io.github.qupath.logviewer.api.manager.LoggerManager;
 import io.github.qupath.logviewer.cellfactories.GenericTableCell;
 import io.github.qupath.logviewer.cellfactories.LogLevelTableCell;
 import io.github.qupath.logviewer.cellfactories.LoggerTableCell;
 import io.github.qupath.logviewer.cellfactories.TableRowTableCell;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.*;
-import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -24,20 +20,20 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import org.slf4j.event.Level;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Predicate;
 
 /**
  * UI controller of the application.
  * It's a JavaFX <a href="https://docs.oracle.com/javase/8/javafx/api/javafx/scene/Parent.html">parent</a>,
  * so it can be added to a JavaFX scene.
  */
-public class LogViewer extends BorderPane implements LoggerController {
+public class LogViewer extends BorderPane {
     private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(System.getProperty("timestamp.format", "HH:mm:ss"));
     private final static ResourceBundle resources = ResourceBundle.getBundle("io.github.qupath.logviewer.strings");
 
@@ -81,15 +77,8 @@ public class LogViewer extends BorderPane implements LoggerController {
     private TextArea textAreaLog;
     @FXML
     private Label itemCounter;
-    private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList();
-    private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);
-    private final LogMessageCounts allLogsMessageCounts = new LogMessageCounts(allLogs);
-    private final LogMessageCounts filteredLogsMessageCounts = new LogMessageCounts(filteredLogs);
-    private final ObservableSet<String> allThreads = FXCollections.observableSet();
-    private final ObservableSet<String> displayedThreads = FXCollections.observableSet();
-    private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
     private final Collection<String> allLogLevelNamesToLowerCase = Arrays.stream(Level.values()).map(LogViewer::toStyleClass).toList();
-    private LoggerManager loggerManager;
+    private final LogViewerModel logViewerModel = new LogViewerModel();
 
     /**
      * Create a new LogViewer.
@@ -103,23 +92,6 @@ public class LogViewer extends BorderPane implements LoggerController {
         loader.setRoot(this);
         loader.setController(this);
         loader.load();
-
-        setUpLoggerManager();
-    }
-
-    /**
-     * Displays a log message in the table.
-     * The message may not directly appear if filtered.
-     *
-     * @param logMessage  the log message to display
-     */
-    @Override
-    public void addLogMessage(LogMessage logMessage) {
-        if (Platform.isFxApplicationThread()) {
-            allLogs.add(logMessage);
-        } else {
-            Platform.runLater(() -> addLogMessage(logMessage));
-        }
     }
 
     @FXML
@@ -147,40 +119,36 @@ public class LogViewer extends BorderPane implements LoggerController {
         String itemText = item.getText();
 
         if (itemText.equals(resources.getString("Action.Thread.allThreads"))) {
-            displayedThreads.addAll(allThreads);
+            logViewerModel.displayAllThreads();
         } else {
-            displayedThreads.clear();
-            displayedThreads.add(itemText);
+            logViewerModel.displayOneThread(itemText);
         }
-
-        updateLogMessageFilter();
     }
 
     @FXML
     private void onMinimumLogLevelMenuClicked(Event event) {
-        Level currentLevel = loggerManager.getRootLogLevel();
-        String currentLevelStr = currentLevel == null ? "" : currentLevel.toString();
+        String rootLevel = logViewerModel.getRootLevel();
 
         Menu minimumLogLevelMenu = (Menu) event.getSource();
         for (MenuItem item : minimumLogLevelMenu.getItems()) {
             RadioMenuItem radioMenuItem = (RadioMenuItem) item;
-            radioMenuItem.setSelected(radioMenuItem.getText().equals(currentLevelStr));
+            radioMenuItem.setSelected(radioMenuItem.getText().equals(rootLevel));
         }
     }
 
     @FXML
     private void onMinimumLogLevelItemClicked(ActionEvent actionEvent) {
         RadioMenuItem item = (RadioMenuItem) actionEvent.getSource();
-        loggerManager.setRootLogLevel(Level.valueOf(item.getText()));
+        logViewerModel.setRootLevel(item.getText());
     }
 
     @FXML
     private void onDisplayedLogLevelsItemClicked(ActionEvent actionEvent) {
         ToggleButton item = (ToggleButton) actionEvent.getSource();
         if (item.isSelected()) {
-            displayedLogLevels.add(Level.valueOf(item.getText()));
+            logViewerModel.displayLogLevel(item.getText());
         } else {
-            displayedLogLevels.remove(Level.valueOf(item.getText()));
+            logViewerModel.hideLogLevel(item.getText());
         }
     }
 
@@ -188,53 +156,33 @@ public class LogViewer extends BorderPane implements LoggerController {
         return level.name().toLowerCase();
     }
 
-    private void setUpLoggerManager() {
-        Optional<LoggerManager> loggerManagerOptional = getCurrentLoggerManager();
-        if (loggerManagerOptional.isPresent()) {
-            loggerManager = loggerManagerOptional.get();
-            loggerManager.addController(this);
-        } else {
-            tableViewLog.setPlaceholder(new Text(resources.getString("Table.noLoggingManagerFound")));
-        }
-    }
-
     private void setUpDisplayedLogLevels() {
-        displayErrorButton.disableProperty().bind(allLogsMessageCounts.errorLevelCountsProperty().isEqualTo(0));
-        displayWarnButton.disableProperty().bind(allLogsMessageCounts.warnLevelCountsProperty().isEqualTo(0));
-        displayInfoButton.disableProperty().bind(allLogsMessageCounts.infoLevelCountsProperty().isEqualTo(0));
-        displayDebugButton.disableProperty().bind(allLogsMessageCounts.debugLevelCountsProperty().isEqualTo(0));
-        displayTraceButton.disableProperty().bind(allLogsMessageCounts.traceLevelCountsProperty().isEqualTo(0));
-
-        displayedLogLevels.addListener((SetChangeListener<? super Level>) change -> {
-            updateLogMessageFilter();
-
-            for (Node item: displayedLogLevelsGroup.getChildren()) {
-                ToggleButton toggleButton = (ToggleButton) item;
-
-                if (change.getElementAdded() != null && toggleButton.getText().equals(change.getElementAdded().toString())) {
-                    toggleButton.setSelected(true);
-                }
-                if (change.getElementRemoved() != null && toggleButton.getText().equals(change.getElementRemoved().toString())) {
-                    toggleButton.setSelected(false);
-                }
-            }
-        });
+        displayErrorButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().errorLevelCountsProperty().isEqualTo(0));
+        displayWarnButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().warnLevelCountsProperty().isEqualTo(0));
+        displayInfoButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().infoLevelCountsProperty().isEqualTo(0));
+        displayDebugButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().debugLevelCountsProperty().isEqualTo(0));
+        displayTraceButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().traceLevelCountsProperty().isEqualTo(0));
     }
 
     private void setUpMessageFilter() {
-        regexButton.selectedProperty().addListener((l, o, n) -> {
-            messageFilter.setPromptText(resources.getString(n ? "Toolbar.Filter.filterByRegex" : "Toolbar.Filter.filterByText"));
-            updateLogMessageFilter();
-        });
+        logViewerModel.getFilterByRegexProperty().bind(regexButton.selectedProperty());
+        logViewerModel.getFilterProperty().bind(messageFilter.textProperty());
 
-        messageFilter.textProperty().addListener((l, o, n) -> updateLogMessageFilter());
+        logViewerModel.getFilterByRegexProperty().addListener((l, o, n) ->
+                messageFilter.setPromptText(resources.getString(n ? "Toolbar.Filter.filterByRegex" : "Toolbar.Filter.filterByText"))
+        );
     }
 
     private void setUpTable() {
-        tableViewLog.getSelectionModel().selectedItemProperty().addListener((l, o, n) -> handleLogMessageSelectionChange(n));
+        tableViewLog.placeholderProperty().bind(
+                Bindings.when(logViewerModel.getLoggingFrameworkFoundProperty())
+                        .then(new Text(resources.getString("Table.noLogs")))
+                        .otherwise(new Text(resources.getString("Table.noLoggingManagerFound")))
+        );
         tableViewLog.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableViewLog.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        tableViewLog.setItems(filteredLogs);
+        tableViewLog.getSelectionModel().selectedItemProperty().addListener((l, o, n) -> handleLogMessageSelectionChange(n));
+        tableViewLog.setItems(logViewerModel.getFilteredLogs());
 
         colRow.setCellValueFactory(LogViewer::cellValueFactory);
         colLevel.setCellValueFactory(LogViewer::cellValueFactory);
@@ -253,24 +201,16 @@ public class LogViewer extends BorderPane implements LoggerController {
 
     private void setUpLogCounter() {
         itemCounter.textProperty().bind(Bindings.concat(
-                filteredLogsMessageCounts.warnLevelCountsProperty(), " ", resources.getString("LogCount.warnings"), ", ",
-                filteredLogsMessageCounts.errorLevelCountsProperty(), " ", resources.getString("LogCount.errors"),
-                Bindings.when(filteredLogsMessageCounts.allLevelCountsProperty().isEqualTo(allLogsMessageCounts.allLevelCountsProperty()))
-                        .then(Bindings.concat(" (",  filteredLogsMessageCounts.allLevelCountsProperty(), " ", resources.getString("LogCount.total"), ")"))
-                        .otherwise(Bindings.concat(" (",  filteredLogsMessageCounts.allLevelCountsProperty(), "/", allLogsMessageCounts.allLevelCountsProperty(), " ", resources.getString("LogCount.shown"), ")"))
+                logViewerModel.getFilteredLogsMessageCounts().warnLevelCountsProperty(), " ", resources.getString("LogCount.warnings"), ", ",
+                logViewerModel.getFilteredLogsMessageCounts().errorLevelCountsProperty(), " ", resources.getString("LogCount.errors"),
+                Bindings.when(logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty().isEqualTo(logViewerModel.getAllLogsMessageCounts().allLevelCountsProperty()))
+                        .then(Bindings.concat(" (",  logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty(), " ", resources.getString("LogCount.total"), ")"))
+                        .otherwise(Bindings.concat(" (",  logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty(), "/", logViewerModel.getAllLogsMessageCounts().allLevelCountsProperty(), " ", resources.getString("LogCount.shown"), ")"))
         ));
     }
 
     private void setUpThreadFilter() {
-        allLogs.addListener((ListChangeListener<? super LogMessage>) change -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    allThreads.addAll(change.getAddedSubList().stream().map(LogMessage::threadName).toList());
-                }
-            }
-        });
-
-        allThreads.addListener((SetChangeListener<? super String>) change -> {
+        logViewerModel.getAllThreads().addListener((SetChangeListener<? super String>) change -> {
             String threadName = change.getElementAdded();
 
             RadioMenuItem item = new RadioMenuItem(threadName);
@@ -279,10 +219,8 @@ public class LogViewer extends BorderPane implements LoggerController {
             threadFilterMenu.getItems().add(item);
 
             if (allThreadsItem.isSelected()) {
-                displayedThreads.add(threadName);
+                logViewerModel.selectThread(threadName);
             }
-
-            updateLogMessageFilter();
         });
     }
 
@@ -299,18 +237,6 @@ public class LogViewer extends BorderPane implements LoggerController {
         ClipboardContent content = new ClipboardContent();
         content.putString(text);
         Clipboard.getSystemClipboard().setContent(content);
-    }
-
-    private void updateLogMessageFilter() {
-        Predicate<LogMessage> filterPredicate = regexButton.isSelected() ?
-                LogMessagePredicates.createPredicateFromRegex(messageFilter.getText()) :
-                LogMessagePredicates.createPredicateContainsIgnoreCase(messageFilter.getText());
-
-        filteredLogs.setPredicate(
-                filterPredicate.and(
-                        logMessage -> displayedLogLevels.contains(logMessage.level()) && displayedThreads.contains(logMessage.threadName())
-                )
-        );
     }
 
     private void handleLogMessageSelectionChange(LogMessage logMessage) {

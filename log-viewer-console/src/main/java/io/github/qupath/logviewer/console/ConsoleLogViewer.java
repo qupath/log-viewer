@@ -1,7 +1,7 @@
 package io.github.qupath.logviewer.console;
 
 import io.github.qupath.logviewer.api.LogMessage;
-import io.github.qupath.logviewer.api.controller.LoggerController;
+import io.github.qupath.logviewer.api.listener.LoggerListener;
 import io.github.qupath.logviewer.api.manager.LoggerManager;
 import javafx.application.Platform;
 
@@ -14,7 +14,7 @@ import javafx.scene.control.TextArea;
  * It's a JavaFX <a href="https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TextArea.html">TextArea</a>,
  * so it can be added to any JavaFX parent.
  */
-public class ConsoleLogViewer extends TextArea implements LoggerController {
+public class ConsoleLogViewer extends TextArea implements LoggerListener {
 
     /**
      * Create a new ConsoleLogViewer.
@@ -24,7 +24,7 @@ public class ConsoleLogViewer extends TextArea implements LoggerController {
 
         Optional<LoggerManager> loggerManagerOptional = getCurrentLoggerManager();
         if (loggerManagerOptional.isPresent()) {
-            loggerManagerOptional.get().addController(this);
+            loggerManagerOptional.get().addListener(this);
         } else {
             appendText("No logging manager found");
         }

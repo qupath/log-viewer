@@ -1,6 +1,6 @@
 package io.github.qupath.logviewer.jdk;
 
-import io.github.qupath.logviewer.api.controller.LoggerController;
+import io.github.qupath.logviewer.api.listener.LoggerListener;
 import io.github.qupath.logviewer.api.manager.LoggerManager;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -14,8 +14,8 @@ public class JdkManager implements LoggerManager {
     private final static Logger rootLogger = Logger.getLogger("");
 
     @Override
-    public void addController(LoggerController controller) {
-        rootLogger.addHandler(new JdkHandler(controller));
+    public void addListener(LoggerListener listener) {
+        rootLogger.addHandler(new JdkHandler(listener));
     }
 
     @Override

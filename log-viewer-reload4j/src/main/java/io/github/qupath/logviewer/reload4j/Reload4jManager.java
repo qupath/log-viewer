@@ -1,6 +1,6 @@
 package io.github.qupath.logviewer.reload4j;
 
-import io.github.qupath.logviewer.api.controller.LoggerController;
+import io.github.qupath.logviewer.api.listener.LoggerListener;
 import io.github.qupath.logviewer.api.manager.LoggerManager;
 import org.apache.log4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +13,8 @@ public class Reload4jManager implements LoggerManager {
     private final static Logger rootLogger = Logger.getRootLogger();
 
     @Override
-    public void addController(LoggerController controller) {
-        var appender = new Reload4jAppender(controller);
+    public void addListener(LoggerListener listener) {
+        var appender = new Reload4jAppender(listener);
         appender.setName("LogViewer");
         rootLogger.addAppender(appender);
     }

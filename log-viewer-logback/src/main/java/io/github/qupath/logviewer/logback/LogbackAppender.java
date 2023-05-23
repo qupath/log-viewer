@@ -4,18 +4,18 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.AppenderBase;
 import io.github.qupath.logviewer.api.LogMessage;
-import io.github.qupath.logviewer.api.controller.LoggerController;
+import io.github.qupath.logviewer.api.listener.LoggerListener;
 
 class LogbackAppender extends AppenderBase<ILoggingEvent> {
-    private final LoggerController controller;
+    private final LoggerListener listener;
 
-    public LogbackAppender(LoggerController controller) {
-        this.controller = controller;
+    public LogbackAppender(LoggerListener listener) {
+        this.listener = listener;
     }
 
     @Override
     protected void append(ILoggingEvent eventObject) {
-        controller.addLogMessage(new LogMessage(
+        listener.addLogMessage(new LogMessage(
                 eventObject.getLoggerName(),
                 eventObject.getTimeStamp(),
                 eventObject.getThreadName(),

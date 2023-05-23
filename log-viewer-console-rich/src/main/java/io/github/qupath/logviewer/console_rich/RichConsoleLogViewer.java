@@ -1,7 +1,7 @@
 package io.github.qupath.logviewer.console_rich;
 
 import io.github.qupath.logviewer.api.LogMessage;
-import io.github.qupath.logviewer.api.controller.LoggerController;
+import io.github.qupath.logviewer.api.listener.LoggerListener;
 import io.github.qupath.logviewer.api.manager.LoggerManager;
 import javafx.application.Platform;
 import java.util.Objects;
@@ -17,7 +17,7 @@ import org.slf4j.event.Level;
  * It's a JavaFX <a href="https://docs.oracle.com/javase/8/javafx/api/javafx/scene/layout/BorderPane.html">BorderPane</a>
  * so it can be added to any JavaFX parent.
  */
-public class RichConsoleLogViewer extends BorderPane implements LoggerController {
+public class RichConsoleLogViewer extends BorderPane implements LoggerListener {
     private static final StyleClassedTextArea textArea = new StyleClassedTextArea();
     private static final VirtualizedScrollPane<StyleClassedTextArea> scrollPane = new VirtualizedScrollPane<>(textArea);
 
@@ -32,7 +32,7 @@ public class RichConsoleLogViewer extends BorderPane implements LoggerController
 
         Optional<LoggerManager> loggerManagerOptional = getCurrentLoggerManager();
         if (loggerManagerOptional.isPresent()) {
-            loggerManagerOptional.get().addController(this);
+            loggerManagerOptional.get().addListener(this);
         } else {
             textArea.append("No logging manager found", levelToCssClass(Level.ERROR));
         }

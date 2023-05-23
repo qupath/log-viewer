@@ -43,7 +43,7 @@ public class TestLogbackManager {
     void Check_Message_Forwarded() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         LogbackManager logbackManager = new LogbackManager();
-        logbackManager.addController(logMessage -> latch.countDown());
+        logbackManager.addListener(logMessage -> latch.countDown());
         logbackManager.setRootLogLevel(Level.TRACE);
 
         slf4jLogger.info("A log message");
@@ -56,7 +56,7 @@ public class TestLogbackManager {
         int N = 5;
         CountDownLatch latch = new CountDownLatch(N);
         LogbackManager logbackManager = new LogbackManager();
-        logbackManager.addController(logMessage -> latch.countDown());
+        logbackManager.addListener(logMessage -> latch.countDown());
         logbackManager.setRootLogLevel(Level.TRACE);
 
         for (int i=0; i<N; ++i) {
@@ -71,7 +71,7 @@ public class TestLogbackManager {
         int N = 5;
         CountDownLatch latch = new CountDownLatch(N);
         LogbackManager logbackManager = new LogbackManager();
-        logbackManager.addController(logMessage -> latch.countDown());
+        logbackManager.addListener(logMessage -> latch.countDown());
         logbackManager.setRootLogLevel(Level.TRACE);
 
         IntStream.range(0, N)
@@ -85,7 +85,7 @@ public class TestLogbackManager {
     void Check_Message_Not_Forwarded_If_Level_Too_Low() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         LogbackManager logbackManager = new LogbackManager();
-        logbackManager.addController(logMessage -> latch.countDown());
+        logbackManager.addListener(logMessage -> latch.countDown());
         logbackManager.setRootLogLevel(Level.ERROR);
 
         slf4jLogger.info("A log message");
@@ -105,7 +105,7 @@ public class TestLogbackManager {
                 "A description",
                 new Throwable()
         );
-        logbackManager.addController(logMessage -> {
+        logbackManager.addListener(logMessage -> {
             // Test everything except the timestamp as it cannot be precisely predicted
             if (
                     logMessage.loggerName().equals(expectedLogMessage.loggerName()) &&
