@@ -1,0 +1,9 @@
+[versions]
+junit = "5.9.3"
+
+[libraries]
+junit = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+
+[bundles]
+
+[plugins]

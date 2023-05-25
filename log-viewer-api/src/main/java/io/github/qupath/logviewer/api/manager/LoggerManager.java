@@ -9,7 +9,7 @@ import org.slf4j.event.Level;
  */
 public interface LoggerManager {
     /**
-     * Link this logging manager with a logger listener.
+     * Link this logger manager with a logger listener.
      * Each new logged message should be forwarded to the logger listener via the {@link LoggerListener#addLogMessage(LogMessage) addLogMessage} function.
      *
      * @param listener  the listener which will receive the logged messages
@@ -31,7 +31,7 @@ public interface LoggerManager {
     Level getRootLogLevel();
 
     /**
-     * Indicates if the current logging framework used by SLF4J is this one
+     * Indicates if this logging framework is the one used by SLF4J
      *
      * @return true if this logging framework is used by SLF4J
      */

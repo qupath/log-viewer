@@ -10,10 +10,10 @@ repositories {
 
 dependencies {
     // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+    testImplementation testLibs.junit
 
     // Use JDK 1.4 Reload4j Binding.
-    implementation 'org.slf4j:slf4j-jdk14:2.0.7'
+    implementation libs.slf4j.jdk14
 
     // Use logging abstraction.
     implementation project(':log-viewer-api')
@@ -21,7 +21,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
     }
 }
 

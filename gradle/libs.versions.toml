@@ -1,0 +1,23 @@
+[versions]
+java = "17"
+slf4j = "2.0.7"
+logback = "1.3.5"
+reload4j = "1.2.25"
+richtextfx = "0.11.0"
+javafx = "20"
+javafxPlugin = "0.0.13"
+jlink = "2.12.0"
+
+[libraries]
+slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-jdk14 = { module = "org.slf4j:slf4j-jdk14", version.ref = "slf4j" }
+slf4j-reload4j = { module = "org.slf4j:slf4j-reload4j", version.ref = "slf4j" }
+logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+reload4j = { module = "ch.qos.reload4j:reload4j", version.ref = "reload4j" }
+richtextfx = { module = "org.fxmisc.richtext:richtextfx", version.ref = "richtextfx" }
+
+[bundles]
+
+[plugins]
+javafx = { id = "org.openjfx.javafxplugin", version.ref = "javafxPlugin" }
+jlink = { id = "org.beryx.jlink", version.ref = "jlink" }

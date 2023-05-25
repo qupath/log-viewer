@@ -35,7 +35,7 @@ public class JdkManager implements LoggerManager {
 
     @Override
     public boolean isFrameworkActive() {
-        return LoggerFactory.getILoggerFactory().getClass().toString().contains("JDK14");
+        return "org.slf4j.jul.JDK14LoggerFactory".equals(LoggerFactory.getILoggerFactory().getClass().getName());
     }
 
     static Level toJdk14JLevel(java.util.logging.Level level) {

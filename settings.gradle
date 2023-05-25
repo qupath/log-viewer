@@ -3,10 +3,10 @@ rootProject.name = 'qupath-log-viewer'
 // Standalone application
 include 'log-viewer-app'
 
-// Main application
+// Main viewer
 include 'log-viewer'
 
-// Console applications
+// Console viewers
 include 'log-viewer-console'
 include 'log-viewer-console-rich'
 
@@ -17,3 +17,13 @@ include 'log-viewer-api'
 include 'log-viewer-logback'
 include 'log-viewer-reload4j'
 include 'log-viewer-jdk'
+
+// Catalogs
+dependencyResolutionManagement {
+    versionCatalogs {
+        // Add the 'testLibs' catalog
+        testLibs {
+            from(files('gradle/test-libs.versions.toml'))
+        }
+    }
+}

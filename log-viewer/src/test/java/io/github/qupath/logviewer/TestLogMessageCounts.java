@@ -9,25 +9,14 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
-import javafx.application.Platform;
-import java.util.concurrent.Semaphore;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TestLogMessageCounts {
-    /*
-     Wait for event listener to be called. To be used before assertions.
-     */
-    private static void waitForRunLater() throws InterruptedException {
-        Semaphore semaphore = new Semaphore(0);
-        Platform.runLater(semaphore::release);
-        semaphore.acquire();
-    }
-
     @BeforeAll
     static void initJfxRuntime() {
-        Platform.startup(() -> {});
+        JavaFXUtils.initJfxRuntime();
     }
 
     @Test
@@ -35,8 +24,8 @@ public class TestLogMessageCounts {
         ObservableList<LogMessage> list = new SimpleListProperty<>();
 
         LogMessageCounts logMessageCounts = new LogMessageCounts(list);
+        JavaFXUtils.waitForRunLater();
 
-        waitForRunLater();
         assertEquals(logMessageCounts.allLevelCountsProperty().get(), 0);
         assertEquals(logMessageCounts.errorLevelCountsProperty().get(), 0);
         assertEquals(logMessageCounts.warnLevelCountsProperty().get(), 0);
@@ -50,8 +39,8 @@ public class TestLogMessageCounts {
         LogMessageCounts logMessageCounts = new LogMessageCounts(list);
 
         list.add(new LogMessage("", 0, "", Level.ERROR, "", null));
+        JavaFXUtils.waitForRunLater();
 
-        waitForRunLater();
         assertEquals(logMessageCounts.errorLevelCountsProperty().get(), 1);
     }
     @Test
@@ -65,8 +54,8 @@ public class TestLogMessageCounts {
                 new LogMessage("", 0, "", Level.DEBUG, "", null),
                 new LogMessage("", 0, "", Level.INFO, "", null)
         );
+        JavaFXUtils.waitForRunLater();
 
-        waitForRunLater();
         assertEquals(logMessageCounts.debugLevelCountsProperty().get(), 1);
     }
     @Test
@@ -83,8 +72,8 @@ public class TestLogMessageCounts {
                 new LogMessage("", 0, "", Level.WARN, "", null)
         );
         list.remove(0, 3);
+        JavaFXUtils.waitForRunLater();
 
-        waitForRunLater();
         assertEquals(logMessageCounts.warnLevelCountsProperty().get(), 1);
     }
     @Test
@@ -92,8 +81,8 @@ public class TestLogMessageCounts {
         ObservableList<LogMessage> list = FXCollections.observableArrayList(new LogMessage("", 0, "", Level.TRACE, "", null));
 
         LogMessageCounts logMessageCounts = new LogMessageCounts(list);
+        JavaFXUtils.waitForRunLater();
 
-        waitForRunLater();
         assertEquals(logMessageCounts.traceLevelCountsProperty().get(), 1);
     }
 }

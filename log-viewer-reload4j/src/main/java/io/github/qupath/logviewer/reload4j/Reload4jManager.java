@@ -37,7 +37,7 @@ public class Reload4jManager implements LoggerManager {
 
     @Override
     public boolean isFrameworkActive() {
-        return LoggerFactory.getILoggerFactory().getClass().toString().contains("reload4j");
+        return "org.slf4j.reload4j.Reload4jLoggerFactory".equals(LoggerFactory.getILoggerFactory().getClass().getName());
     }
 
     static Level toSlf4JLevel(org.apache.log4j.Level level) {
