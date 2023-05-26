@@ -20,6 +20,15 @@ public class TestReload4jManager {
     private final static org.apache.log4j.Logger reload4jLogger = org.apache.log4j.Logger.getRootLogger();
 
     @Test
+    void Check_Framework_Active() {
+        Reload4jManager reload4jManager = new Reload4jManager();
+
+        boolean managerActive = reload4jManager.isFrameworkActive();
+
+        assertTrue(managerActive);
+    }
+
+    @Test
     void Check_Root_Level_Set_To_Trace_Through_Reload4jManager() {
         Reload4jManager reload4jManager = new Reload4jManager();
         reload4jManager.setRootLogLevel(Level.TRACE);

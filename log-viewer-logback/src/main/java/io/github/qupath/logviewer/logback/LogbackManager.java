@@ -41,7 +41,7 @@ public class LogbackManager implements LoggerManager {
 
     @Override
     public boolean isFrameworkActive() {
-        return "ch.qos.logback.classic.LoggerContext".equals(LoggerFactory.getILoggerFactory().getClass().getName());
+        return LoggerFactory.getILoggerFactory() instanceof LoggerContext;
     }
 
     static Level toSlf4JLevel(ch.qos.logback.classic.Level level) {

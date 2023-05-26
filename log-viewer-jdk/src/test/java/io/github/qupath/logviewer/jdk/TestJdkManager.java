@@ -20,6 +20,15 @@ public class TestJdkManager {
     private final static java.util.logging.Logger jdk14Logger = java.util.logging.Logger.getLogger("");
 
     @Test
+    void Check_Framework_Active() {
+        JdkManager jdkManager = new JdkManager();
+
+        boolean managerActive = jdkManager.isFrameworkActive();
+
+        assertTrue(managerActive);
+    }
+
+    @Test
     void Check_Root_Level_Set_To_Trace_Through_Jdk14Manager() {
         JdkManager jdkManager = new JdkManager();
         jdkManager.setRootLogLevel(Level.TRACE);
