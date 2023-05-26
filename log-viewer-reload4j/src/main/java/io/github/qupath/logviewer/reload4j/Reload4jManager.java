@@ -3,6 +3,7 @@ package io.github.qupath.logviewer.reload4j;
 import io.github.qupath.logviewer.api.listener.LoggerListener;
 import io.github.qupath.logviewer.api.manager.LoggerManager;
 import org.apache.log4j.Logger;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
@@ -37,7 +38,8 @@ public class Reload4jManager implements LoggerManager {
 
     @Override
     public boolean isFrameworkActive() {
-        return LoggerFactory.getILoggerFactory().getClass().getName().contains("org.slf4j.reload4j");
+        ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
+        return loggerFactory != null && loggerFactory.getClass().getName().startsWith("org.slf4j.reload4j");
     }
 
     static Level toSlf4JLevel(org.apache.log4j.Level level) {
