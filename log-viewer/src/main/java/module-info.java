@@ -3,16 +3,16 @@
  * It supports filtering logs by level, thread, and description.
  * Any extra text (e.g. stack traces) is shown in a text area below the main table.
  */
-module logviewer {
+module qupath.ui.logviewer {
     requires javafx.controls;
     requires javafx.fxml;
     requires org.slf4j;
-    requires logviewer.api;
+    requires qupath.ui.logviewer.api;
     requires transitive javafx.graphics;    // Part of the public API uses types of javafx.graphics
 
-    exports io.github.qupath.logviewer;
+    exports qupath.ui.logviewer;
 
-    uses io.github.qupath.logviewer.api.manager.LoggerManager;
+    uses qupath.ui.logviewer.api.manager.LoggerManager;
 
-    opens io.github.qupath.logviewer to javafx.fxml;
+    opens qupath.ui.logviewer to javafx.fxml;
 }

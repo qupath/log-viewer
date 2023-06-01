@@ -45,8 +45,8 @@ javafx {
 }
 
 application {
-    mainModule = 'logviewer.app'
-    mainClass = 'io.github.qupath.logviewer.app.LogViewerApp'
+    mainModule = 'qupath.ui.logviewer.app'
+    mainClass = 'qupath.ui.logviewer.app.LogViewerApp'
 }
 
 jlink {
