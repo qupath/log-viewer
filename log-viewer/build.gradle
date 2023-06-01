@@ -3,7 +3,7 @@ plugins {
     id 'java-library'
 
     // Add JavaFX plugin.
-    id 'org.openjfx.javafxplugin' version '0.0.13'
+    alias(libs.plugins.javafx)
 }
 
 repositories {
@@ -16,21 +16,20 @@ dependencies {
     implementation project(':log-viewer-api')
 
     // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+    testImplementation testLibs.junit
 
-    // Use TestFX for testing UI.
-    testImplementation "org.testfx:testfx-core:4.0.16-alpha"
-    testImplementation "org.testfx:testfx-junit5:4.0.16-alpha"
+    // Use Logback logging framework for testing.
+    testRuntimeOnly project(':log-viewer-logback')
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
     }
 }
 
 javafx {
-    version = "20"
+    version = libs.versions.javafx.get()
     modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 

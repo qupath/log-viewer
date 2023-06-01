@@ -1,5 +1,5 @@
 /**
- * This module provides a JavaFX application displaying live logs in a table.
+ * This module provides a JavaFX window displaying live logs in a table.
  * It supports filtering logs by level, thread, and description.
  * Any extra text (e.g. stack traces) is shown in a text area below the main table.
  */

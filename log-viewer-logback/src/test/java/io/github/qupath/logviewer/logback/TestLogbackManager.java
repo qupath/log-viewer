@@ -20,6 +20,15 @@ public class TestLogbackManager {
     private final static ch.qos.logback.classic.Logger logbackLogger = getRootLogger();
 
     @Test
+    void Check_Framework_Active() {
+        LogbackManager logbackManager = new LogbackManager();
+
+        boolean managerActive = logbackManager.isFrameworkActive();
+
+        assertTrue(managerActive);
+    }
+
+    @Test
     void Check_Root_Level_Set_To_Trace_Through_LogbackManager() {
         LogbackManager logbackManager = new LogbackManager();
         logbackManager.setRootLogLevel(Level.TRACE);

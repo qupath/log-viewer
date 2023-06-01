@@ -10,13 +10,13 @@ repositories {
 
 dependencies {
     // Use JUnit Jupiter for testing.
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+    testImplementation testLibs.junit
 
     // Use reload4j as logging framework.
-    implementation 'ch.qos.reload4j:reload4j:1.2.25'
+    implementation libs.reload4j
 
     // Use SLF4J Reload4j Binding.
-    implementation 'org.slf4j:slf4j-reload4j:2.0.7'
+    implementation libs.slf4j.reload4j
 
     // Use logging abstraction.
     implementation project(':log-viewer-api')
@@ -24,7 +24,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
     }
 }
 

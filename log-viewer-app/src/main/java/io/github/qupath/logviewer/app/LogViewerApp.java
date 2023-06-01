@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 /**
- * Application starting one of the LogViewer applications.
+ * Application starting one of the LogViewer implementations.
  */
 public class LogViewerApp extends Application {
     private final static String LOG_VIEWER_NAME = "log-viewer";
@@ -60,7 +60,7 @@ public class LogViewerApp extends Application {
 
         if (unNamedParameters.contains("-h") || unNamedParameters.contains("--help")) {
             logger.info("Options:");
-            logger.info("--app=appName          Start the application indicated by \"appName\". \"appName\" must one of \"" +
+            logger.info("--app=appName          Start the application indicated by \"appName\". \"appName\" must be one of \"" +
                     LOG_VIEWER_NAME + "\", \"" + CONSOLE_NAME + "\", or \"" + RICH_CONSOLE_NAME + "\".");
             logger.info("-t, --test             Log random messages.");
             logger.info("-h, --help             Displays this help message.");

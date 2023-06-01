@@ -3,7 +3,7 @@ plugins {
     id 'java-library'
 
     // Add JavaFX plugin.
-    id 'org.openjfx.javafxplugin' version '0.0.13'
+    alias(libs.plugins.javafx)
 }
 
 repositories {
@@ -18,11 +18,11 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
     }
 }
 
 javafx {
-    version = "20"
+    version = libs.versions.javafx.get()
     modules = [ 'javafx.controls' ]
 }

@@ -2,6 +2,7 @@ package io.github.qupath.logviewer.jdk;
 
 import io.github.qupath.logviewer.api.listener.LoggerListener;
 import io.github.qupath.logviewer.api.manager.LoggerManager;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
@@ -35,7 +36,8 @@ public class JdkManager implements LoggerManager {
 
     @Override
     public boolean isFrameworkActive() {
-        return LoggerFactory.getILoggerFactory().getClass().toString().contains("JDK14");
+        ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
+        return loggerFactory != null && loggerFactory.getClass().getName().startsWith("org.slf4j.jul");
     }
 
     static Level toJdk14JLevel(java.util.logging.Level level) {

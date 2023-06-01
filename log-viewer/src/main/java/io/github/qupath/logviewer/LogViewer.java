@@ -81,7 +81,7 @@ public class LogViewer extends BorderPane {
     private final LogViewerModel logViewerModel = new LogViewerModel();
 
     /**
-     * Create a new LogViewer.
+     * Creates a new LogViewer.
      *
      * @throws IOException if an error occurs when loading the FXML file containing the UI
      */
@@ -116,12 +116,9 @@ public class LogViewer extends BorderPane {
     @FXML
     private void onThreadItemSelected(ActionEvent e) {
         RadioMenuItem item = (RadioMenuItem) e.getSource();
-        String itemText = item.getText();
 
-        if (itemText.equals(resources.getString("Action.Thread.allThreads"))) {
-            logViewerModel.displayAllThreads();
-        } else {
-            logViewerModel.displayOneThread(itemText);
+        if (item != allThreadsItem) {
+            logViewerModel.displayOneThread(item.getText());
         }
     }
 
@@ -210,6 +207,8 @@ public class LogViewer extends BorderPane {
     }
 
     private void setUpThreadFilter() {
+        logViewerModel.getDisplayAllThreadsProperty().bind(allThreadsItem.selectedProperty());
+
         logViewerModel.getAllThreads().addListener((SetChangeListener<? super String>) change -> {
             String threadName = change.getElementAdded();
 
@@ -217,10 +216,6 @@ public class LogViewer extends BorderPane {
             item.setOnAction(this::onThreadItemSelected);
             item.setToggleGroup(threadFilterGroup);
             threadFilterMenu.getItems().add(item);
-
-            if (allThreadsItem.isSelected()) {
-                logViewerModel.selectThread(threadName);
-            }
         });
     }
 

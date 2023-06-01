@@ -3,10 +3,10 @@ plugins {
     id 'application'
 
     // Add JavaFX plugin.
-    id 'org.openjfx.javafxplugin' version '0.0.13'
+    alias(libs.plugins.javafx)
 
     // Add jlink plugin to add support for assembling modules into a custom runtime image.
-    id 'org.beryx.jlink' version '2.12.0'
+    alias(libs.plugins.jlink)
 }
 
 repositories {
@@ -15,13 +15,13 @@ repositories {
 }
 
 dependencies {
-    // Use applications.
+    // Use implementations.
     implementation project(':log-viewer')
     implementation project(':log-viewer-console')
     implementation project(':log-viewer-console-rich')
 
     // Use SLF4J as interface for any logging framework.
-    implementation 'org.slf4j:slf4j-api:2.0.4'
+    implementation libs.slf4j
 
     // Use Logback implementation.
     runtimeOnly project(':log-viewer-logback')
@@ -35,12 +35,12 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
     }
 }
 
 javafx {
-    version = "20"
+    version = libs.versions.javafx.get()
     modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
