@@ -4,8 +4,8 @@
  */
 module logviewer.reload4j {
     requires org.slf4j;
-    requires logviewer.api;
+    requires qupath.ui.logviewer.api;
     requires ch.qos.reload4j;
 
-    provides io.github.qupath.logviewer.api.manager.LoggerManager with io.github.qupath.logviewer.reload4j.Reload4jManager;
+    provides qupath.ui.logviewer.api.manager.LoggerManager with qupath.ui.logviewer.reload4j.Reload4jManager;
 }

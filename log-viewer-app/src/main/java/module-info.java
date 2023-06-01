@@ -5,13 +5,13 @@
  *     <li>LogViewer Console (see the {@code log-viewer-console} sub project)</li>
  *     <li>LogViewer Rich Console (see the {@code log-viewer-console-rich} sub project)</li>
  * </ul>
- * Take a look at the {@link io.github.qupath.logviewer.app.LogViewerApp LogViewerApp} class for more information.
+ * Take a look at the {@link qupath.ui.logviewer.app.LogViewerApp LogViewerApp} class for more information.
  */
-module logviewer.app {
+module qupath.ui.logviewer.app {
     requires org.slf4j;
-    requires logviewer;
-    requires logviewer.console;
-    requires logviewer.console.rich;
+    requires qupath.ui.logviewer;
+    requires qupath.ui.logviewer.console;
+    requires qupath.ui.logviewer.console.rich;
 
-    opens io.github.qupath.logviewer.app to javafx.graphics;
+    opens qupath.ui.logviewer.app to javafx.graphics;
 }
