@@ -1,0 +1,10 @@
+plugins {
+    id 'java-library'
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+version = rootProject.version

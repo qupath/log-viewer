@@ -1,6 +1,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id 'logviewer.java-conventions'
 
     // Add JavaFX plugin.
     alias(libs.plugins.javafx)

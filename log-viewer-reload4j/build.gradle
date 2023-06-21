@@ -1,6 +1,6 @@
 plugins {
-    // Apply the Java library plugin to add support for building a library in Java.
-    id 'java-library'
+    id 'logviewer.java-conventions'
+    id 'logviewer.publishing-conventions'
 }
 
 repositories {
