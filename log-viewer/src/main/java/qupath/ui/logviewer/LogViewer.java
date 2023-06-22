@@ -38,6 +38,8 @@ public class LogViewer extends BorderPane {
     private final static ResourceBundle resources = ResourceBundle.getBundle("qupath.ui.logviewer.strings");
 
     @FXML
+    private MenuBar menubar;
+    @FXML
     private Menu threadFilterMenu;
     @FXML
     private ToggleGroup threadFilterGroup;
@@ -92,6 +94,14 @@ public class LogViewer extends BorderPane {
         loader.setRoot(this);
         loader.setController(this);
         loader.load();
+    }
+
+    /**
+     * Get the default menubar associated with the log viewer.
+     * @return the menubar
+     */
+    public MenuBar getMenubar() {
+        return menubar;
     }
 
     @FXML
