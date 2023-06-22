@@ -1,6 +1,7 @@
 plugins {
     // Apply the Java library plugin to add support for building a library in Java.
-    id 'java-library'
+    id 'logviewer.java-conventions'
+    id 'logviewer.publishing-conventions'
 }
 
 repositories {
@@ -10,7 +11,7 @@ repositories {
 
 dependencies {
     // Use SLF4J as interface for any logging framework.
-    api 'org.slf4j:slf4j-api:2.0.4'
+    api libs.slf4j
 }
 
 java {
