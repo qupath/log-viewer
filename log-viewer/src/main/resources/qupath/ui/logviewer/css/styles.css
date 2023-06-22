@@ -43,3 +43,8 @@
 .error {
     -fx-text-fill: error;
 }
+
+/* Default log table styling */
+.log-table {
+    -fx-font-size: 90%;
+}
