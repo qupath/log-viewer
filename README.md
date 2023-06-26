@@ -21,7 +21,7 @@ The repository contains eight subprojects:
 * One subproject (`logviewer-app`) to start one of the UI implementation as a standalone application. It is mainly used for development.
 
 To use the log viewer, choose one of the UI implementation, one of the logging framework, and install them:
-```shell
+```groovy
 //build.gradle
 
 // Choose one of those UI implementation:
