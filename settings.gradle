@@ -12,9 +12,9 @@ include 'logviewer-ui-richtextfx'
 include 'logviewer-api'
 
 // Logging modules
-include 'logviewer-log-logback'
-include 'logviewer-log-reload4j'
-include 'logviewer-log-jdk'
+include 'logviewer-logging-logback'
+include 'logviewer-logging-reload4j'
+include 'logviewer-logging-jdk'
 
 // Catalogs
 dependencyResolutionManagement {

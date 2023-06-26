@@ -14,7 +14,6 @@ import java.util.function.Function;
  * It creates an icon representing the log level.
  */
 public class LogLevelTableCell extends GenericTableCell {
-    private final Tooltip tooltip = new Tooltip();
     private final Circle icon = new Circle(5.0);
 
     /**
@@ -35,7 +34,6 @@ public class LogLevelTableCell extends GenericTableCell {
 
         if (empty || item == null) {
             setGraphic(null);
-            setTooltip(null);
         } else {
             tooltip.setText(item.level().toString());
             setTooltip(tooltip);

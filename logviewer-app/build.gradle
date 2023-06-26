@@ -25,9 +25,9 @@ dependencies {
     implementation libs.slf4j
 
     // Use logging frameworks.
-    runtimeOnly project(':logviewer-log-logback')
-    runtimeOnly project(':logviewer-log-reload4j')
-    runtimeOnly project(':logviewer-log-jdk')
+    runtimeOnly project(':logviewer-logging-logback')
+    runtimeOnly project(':logviewer-logging-reload4j')
+    runtimeOnly project(':logviewer-logging-jdk')
 }
 
 java {

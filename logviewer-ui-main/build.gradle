@@ -20,7 +20,7 @@ dependencies {
     testImplementation testLibs.junit
 
     // Use Logback logging framework for testing.
-    testRuntimeOnly project(':logviewer-log-logback')
+    testRuntimeOnly project(':logviewer-logging-logback')
 }
 
 java {

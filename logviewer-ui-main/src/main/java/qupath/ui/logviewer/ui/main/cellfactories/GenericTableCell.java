@@ -1,5 +1,6 @@
 package qupath.ui.logviewer.ui.main.cellfactories;
 
+import javafx.scene.control.Tooltip;
 import qupath.ui.logviewer.api.LogMessage;
 import javafx.scene.control.TableCell;
 import org.slf4j.event.Level;
@@ -9,10 +10,11 @@ import java.util.function.Function;
 
 /**
  * Generic cell factory used by all columns.
- * It sets the text and style of each cell.
+ * It sets the text, tooltip and style of each cell.
  */
 public class GenericTableCell extends TableCell<LogMessage, LogMessage> {
-    private final Function<LogMessage, String> logMessageToString;
+    protected final Function<LogMessage, String> logMessageToString;
+    protected final Tooltip tooltip = new Tooltip();
 
     /**
      * Creates a generic cell factory.
@@ -29,8 +31,12 @@ public class GenericTableCell extends TableCell<LogMessage, LogMessage> {
 
         if (empty || item == null) {
             setText("");
+            setTooltip(null);
         } else {
             setText(logMessageToString.apply(item));
+
+            tooltip.setText(logMessageToString.apply(item));
+            setTooltip(tooltip);
 
             getStyleClass().removeAll(Arrays.stream(Level.values()).map(l -> l.name().toLowerCase()).toList());
             getStyleClass().add(item.level().name().toLowerCase());

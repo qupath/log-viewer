@@ -5,7 +5,7 @@ import javafx.scene.control.skin.VirtualFlow;
 import qupath.ui.logviewer.api.LogMessage;
 import qupath.ui.logviewer.ui.main.cellfactories.GenericTableCell;
 import qupath.ui.logviewer.ui.main.cellfactories.LogLevelTableCell;
-import qupath.ui.logviewer.ui.main.cellfactories.LoggerTableCell;
+import qupath.ui.logviewer.ui.main.cellfactories.CompactTableCell;
 import qupath.ui.logviewer.ui.main.cellfactories.TableRowTableCell;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
@@ -100,10 +100,21 @@ public class LogViewer extends BorderPane {
 
     /**
      * Get the default menubar associated with the log viewer.
+     *
      * @return the menubar
      */
     public MenuBar getMenubar() {
         return menubar;
+    }
+
+    /**
+     * Get the TableView used to display logs.
+     * Each colum can be identified by its id.
+     *
+     * @return the TableView
+     */
+    public TableView<LogMessage> getTable() {
+        return tableViewLog;
     }
 
     @FXML
@@ -213,7 +224,7 @@ public class LogViewer extends BorderPane {
 
         colRow.setCellFactory(column -> new TableRowTableCell(logMessage -> ""));
         colLevel.setCellFactory(column -> new LogLevelTableCell(logMessage -> String.valueOf(logMessage.level())));
-        colLogger.setCellFactory(column -> new LoggerTableCell(LogMessage::loggerName));
+        colLogger.setCellFactory(column -> new CompactTableCell(LogMessage::loggerName, "."));
         colThread.setCellFactory(column -> new GenericTableCell(LogMessage::threadName));
         colTimestamp.setCellFactory(column -> new GenericTableCell(logMessage -> TIMESTAMP_FORMAT.format(new Date(logMessage.timestamp()))));
         colMessage.setCellFactory(column -> new GenericTableCell(LogMessage::message));
