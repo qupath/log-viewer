@@ -13,7 +13,13 @@ import java.util.function.Function;
  * It sets the text, tooltip and style of each cell.
  */
 public class GenericTableCell extends TableCell<LogMessage, LogMessage> {
+    /**
+     * The function indicating what information of LogMessage to display (and how)
+     */
     protected final Function<LogMessage, String> logMessageToString;
+    /**
+     * Tooltip applied to each item
+     */
     protected final Tooltip tooltip = new Tooltip();
 
     /**
