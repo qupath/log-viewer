@@ -1,3 +1,7 @@
+@font-face {
+    src: url('../fonts/intelone-mono/intelone-mono-font-family-regular.ttf');
+}
+
 /* Define level colors */
 .root {
     trace: darkgray;
@@ -14,6 +18,7 @@
 /* Table cells */
 .table-cell {
     -fx-alignment: center;
+    -fx-font-family: "IntelOne Mono";
 }
 .col-message.table-cell {
     -fx-alignment: center-left;
@@ -47,4 +52,9 @@
 /* Default log table styling */
 .log-table {
     -fx-font-size: 90%;
+}
+
+/* Text area */
+.textAreaLog {
+    -fx-font-family: "IntelOne Mono";
 }
