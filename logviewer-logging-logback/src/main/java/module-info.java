@@ -5,7 +5,7 @@ import qupath.ui.logviewer.logging.logback.LogbackManager;
  * This module provides a library forwarding log messages coming from the
  * <a href="https://logback.qos.ch/">Logback</a> logging framework.
  */
-module qupath.ui.logviewer.log.logback {
+module qupath.ui.logviewer.logging.logback {
     requires org.slf4j;
     requires ch.qos.logback.core;
     requires ch.qos.logback.classic;

@@ -16,7 +16,7 @@ Three logging frameworks are currently supported: the [JavaTM 2 platform's core 
 ## Installing
 The repository contains eight subprojects:
 * Three subprojects containing UI implementations, as described above.
-* Three subprojects adding support for the Java (`logviewer-log-jdk`), Logback (`logviewer-log-logback`), and reload4j (`logviewer-log-reload4j`) logging frameworks.
+* Three subprojects adding support for the Java (`logviewer-logging-jdk`), Logback (`logviewer-logging-logback`), and reload4j (`logviewer-logging-reload4j`) logging frameworks.
 * One subproject (`logviewer-api`) used internally to link a UI implementation to a logging framework.
 * One subproject (`logviewer-app`) to start one of the UI implementation as a standalone application. It is mainly used for development.
 
@@ -30,9 +30,9 @@ implementation "io.github.qupath:logviewer-ui-textarea:0.1.0"
 implementation "io.github.qupath:logviewer-ui-richtextfx:0.1.0"
 
 // Choose one of those logging framework:
-implementation "io.github.qupath:logviewer-log-jdk:0.1.0"
-implementation "io.github.qupath:logviewer-log-logback:0.1.0"
-implementation "io.github.qupath:logviewer-log-reload4j:0.1.0"
+implementation "io.github.qupath:logviewer-logging-jdk:0.1.0"
+implementation "io.github.qupath:logviewer-logging-logback:0.1.0"
+implementation "io.github.qupath:logviewer-logging-reload4j:0.1.0"
 ```
 
 Then, create the chosen UI implementation. Here is an example with `log-viewer`:
