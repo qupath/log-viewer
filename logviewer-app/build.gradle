@@ -1,0 +1,53 @@
+plugins {
+    // Apply the application plugin to add support for building a CLI application in Java.
+    id 'application'
+    id 'logviewer.java-conventions'
+
+    // Add JavaFX plugin.
+    alias(libs.plugins.javafx)
+
+    // Add jlink plugin to add support for assembling modules into a custom runtime image.
+    alias(libs.plugins.jlink)
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    // Use UI implementations.
+    implementation project(':logviewer-ui-main')
+    implementation project(':logviewer-ui-textarea')
+    implementation project(':logviewer-ui-richtextfx')
+
+    // Use SLF4J as interface for any logging framework.
+    implementation libs.slf4j
+
+    // Use logging frameworks.
+    runtimeOnly project(':logviewer-log-logback')
+    runtimeOnly project(':logviewer-log-reload4j')
+    runtimeOnly project(':logviewer-log-jdk')
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
+    }
+}
+
+javafx {
+    version = libs.versions.javafx.get()
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
+
+application {
+    mainModule = 'qupath.ui.logviewer.app'
+    mainClass = 'qupath.ui.logviewer.app.LogViewerApp'
+}
+
+jlink {
+    launcher {
+        name = 'logviewer'
+    }
+}

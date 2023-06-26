@@ -1,0 +1,31 @@
+plugins {
+    id 'logviewer.java-conventions'
+    id 'logviewer.publishing-conventions'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    // Use JUnit Jupiter for testing.
+    testImplementation testLibs.junit
+
+    // Use Logback as logging framework.
+    implementation libs.logback
+
+    // Use logging abstraction.
+    implementation project(':logviewer-api')
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
+    }
+}
+
+test {
+    // Use JUnit Platform for unit tests.
+    useJUnitPlatform()
+}
