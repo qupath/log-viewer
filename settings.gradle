@@ -1,22 +1,20 @@
 rootProject.name = 'qupath-log-viewer'
 
 // Standalone application
-include 'log-viewer-app'
+include 'logviewer-app'
 
-// Main viewer
-include 'log-viewer'
-
-// Console viewers
-include 'log-viewer-console'
-include 'log-viewer-console-rich'
+// UI implementations
+include 'logviewer-ui-main'
+include 'logviewer-ui-textarea'
+include 'logviewer-ui-richtextfx'
 
 // Logging module abstraction
-include 'log-viewer-api'
+include 'logviewer-api'
 
 // Logging modules
-include 'log-viewer-logback'
-include 'log-viewer-reload4j'
-include 'log-viewer-jdk'
+include 'logviewer-logging-logback'
+include 'logviewer-logging-reload4j'
+include 'logviewer-logging-jdk'
 
 // Catalogs
 dependencyResolutionManagement {

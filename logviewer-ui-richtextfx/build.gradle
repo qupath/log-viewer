@@ -1,0 +1,32 @@
+plugins {
+    // Apply the Java library plugin to add support for building a library in Java.
+    id 'logviewer.java-conventions'
+    id 'logviewer.publishing-conventions'
+
+    // Add JavaFX plugin.
+    alias(libs.plugins.javafx)
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    // Use RichTextFX
+    implementation libs.richtextfx
+
+    // Use logging abstraction. This also import SLF4J.
+    implementation project(':logviewer-api')
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(libs.versions.java.get())
+    }
+}
+
+javafx {
+    version = libs.versions.javafx.get()
+    modules = [ 'javafx.controls' ]
+}
