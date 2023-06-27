@@ -6,7 +6,11 @@ import javafx.scene.control.TableCell;
 import org.slf4j.event.Level;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Generic cell factory used by all columns.
@@ -21,6 +25,20 @@ public class GenericTableCell extends TableCell<LogMessage, LogMessage> {
      * Tooltip applied to each item
      */
     protected final Tooltip tooltip = new Tooltip();
+
+    /**
+     * Maps each level to its lowercase name, used as style class
+     */
+    private final static Map<Level, String> LEVEL_TO_NAME =
+            Arrays.stream(Level.values())
+                    .collect(
+                            Collectors.toMap(l -> l, l -> l.name().toLowerCase()));
+
+    /**
+     * The names of the levels, used as style classes
+     */
+    private final static Set<String> LEVEL_NAMES = new HashSet<>(LEVEL_TO_NAME.values());
+
 
     /**
      * Creates a generic cell factory.
@@ -44,8 +62,10 @@ public class GenericTableCell extends TableCell<LogMessage, LogMessage> {
             tooltip.setText(logMessageToString.apply(item));
             setTooltip(tooltip);
 
-            getStyleClass().removeAll(Arrays.stream(Level.values()).map(l -> l.name().toLowerCase()).toList());
-            getStyleClass().add(item.level().name().toLowerCase());
+            getStyleClass().removeAll(LEVEL_NAMES);
+            String name = LEVEL_TO_NAME.getOrDefault(item.level(), null);
+            if (name != null)
+                getStyleClass().add(name);
         }
     }
 }
