@@ -58,3 +58,8 @@
 .textAreaLog {
     -fx-font-family: "IntelOne Mono";
 }
+
+/* Increase column spacing */
+.table-cell {
+    -fx-padding: 2 5 2 5;
+}
