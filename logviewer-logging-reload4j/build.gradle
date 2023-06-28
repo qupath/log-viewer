@@ -18,8 +18,8 @@ dependencies {
     // Use SLF4J Reload4j Binding.
     implementation libs.slf4j.reload4j
 
-    // Use logging abstraction.
-    implementation project(':logviewer-api')
+    // Use logging abstraction. This also import SLF4J.
+    api project(':logviewer-api')
 }
 
 java {
