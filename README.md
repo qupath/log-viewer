@@ -24,19 +24,35 @@ To use the log viewer, choose one of the UI implementation, one of the logging f
 ```groovy
 //build.gradle
 
-// Choose one of those UI implementation:
-implementation "io.github.qupath:logviewer-ui-main:0.1.0"
-implementation "io.github.qupath:logviewer-ui-textarea:0.1.0"
-implementation "io.github.qupath:logviewer-ui-richtextfx:0.1.0"
+dependencies {
+  def logViewerVersion = "0.1.0-SNAPSHOT"
 
-// Choose one of those logging framework:
-implementation "io.github.qupath:logviewer-logging-jdk:0.1.0"
-implementation "io.github.qupath:logviewer-logging-logback:0.1.0"
-implementation "io.github.qupath:logviewer-logging-reload4j:0.1.0"
+  // Choose one of those UI implementation:
+  implementation "io.github.qupath:logviewer-ui-main:${logViewerVersion}"
+  implementation "io.github.qupath:logviewer-ui-textarea:${logViewerVersion}"
+  implementation "io.github.qupath:logviewer-ui-richtextfx:${logViewerVersion}"
+
+  // Choose one of those logging framework:
+  implementation "io.github.qupath:logviewer-logging-jdk:${logViewerVersion}"
+  implementation "io.github.qupath:logviewer-logging-logback:${logViewerVersion}"
+  implementation "io.github.qupath:logviewer-logging-reload4j:${logViewerVersion}"
+}
+```
+
+If you don't use Java modules in your application, you also have to import the `javafx.controls` and `javafx.fxml` modules:
+```groovy
+//build.gradle
+
+javafx {
+    version = ...
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
+}
 ```
 
 Then, create the chosen UI implementation. Here is an example with `log-viewer`:
 ```java
+//TestApp.java
+
 public class TestApp extends Application {
     private final static Logger logger = LoggerFactory.getLogger(TestApp.class);
     

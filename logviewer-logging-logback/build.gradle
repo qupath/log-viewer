@@ -15,8 +15,8 @@ dependencies {
     // Use Logback as logging framework.
     implementation libs.logback
 
-    // Use logging abstraction.
-    implementation project(':logviewer-api')
+    // Use logging abstraction. This also import SLF4J.
+    api project(':logviewer-api')
 }
 
 java {

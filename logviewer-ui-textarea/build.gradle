@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     // Use logging abstraction. This also import SLF4J.
-    implementation project(':logviewer-api')
+    api project(':logviewer-api')
 }
 
 java {
