@@ -28,13 +28,13 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v1
 
-      - name: Execute Gradle build
-        run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            xvfb-run ./gradlew build -P toolchain=17
-          else
-            ./gradlew build -P toolchain=17
-          fi
+      - name: Execute Gradle build (Ubuntu)
+        run: xvfb-run ./gradlew build -P toolchain=17
+        if: matrix.os == 'ubuntu-latest'
+
+      - name: Execute Gradle build (Windows and MacOS)
+        run: ./gradlew build -P toolchain=17
+        if: matrix.os == 'windows-latest' || matrix.os == 'macos-latest'
 
       - uses: actions/upload-artifact@v3
         with:
