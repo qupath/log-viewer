@@ -3,7 +3,7 @@
 
 name: Java CI with Gradle
 
-on: [workflow_dispatch]
+on: [pull_request]
 
 jobs:
   build:
