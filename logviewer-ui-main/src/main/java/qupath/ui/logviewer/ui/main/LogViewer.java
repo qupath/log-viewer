@@ -85,6 +85,28 @@ public class LogViewer extends BorderPane {
     private final LogViewerModel logViewerModel = new LogViewerModel();
 
     /**
+     * Maintain a cache of virtual flows, since they are awkward to access from the table view.
+     * (We only expect there to be one, since we don't expect the table skin to be changed)
+     */
+    private final Map<Skin<?>, VirtualFlow<?>> virtualFlows = new WeakHashMap<>();
+
+    /**
+     * Highest row index that has been visible.
+     * This is stored here because we can't rely upon the table view to scroll immediately when requested, and if
+     * many log messages arrive in quick succession then we need to distinguish whether the user has 'scrolled up'
+     * or if we're just slow.
+     */
+    private int previousLastVisibleIndex = -1;
+
+    /**
+     * Flag indicating that we should always scroll to the bottom.
+     * This should be turned on whenever the table has been scrolled to the bottom (either programmatically or
+     * by the user), and turned off whenever the user scrolls up.
+     * Otherwise, we should use this flag to decide whether to scroll when new messages arrive.
+     */
+    private boolean scrollToBottom = true;
+
+    /**
      * Creates a new LogViewer.
      *
      * @throws IOException if an error occurs when loading the FXML file containing the UI
@@ -205,13 +227,40 @@ public class LogViewer extends BorderPane {
         tableViewLog.setItems(logViewerModel.getFilteredLogs());
 
         tableViewLog.getItems().addListener((ListChangeListener<? super LogMessage>) change -> {
-            int numberOfRows = change.getList().size();
-            var skin = (TableViewSkin<?>) tableViewLog.getSkin();
-            var virtualFlow = skin == null ? null : (VirtualFlow<?>) skin.getChildren().get(1);
+            // Discard events if the log viewer isn't showing
+            if (!isLogShowing())
+                return;
+            // Confirm how many items are being added
+            int numAdditionalRows = 0;
+            while (change.next()) {
+                numAdditionalRows += change.getAddedSize() - change.getRemovedSize();
+            }
+            if (numAdditionalRows == 0)
+                return;
 
-            // Scroll to bottom if four last rows are visible
-            if (virtualFlow != null && virtualFlow.getLastVisibleCell() != null && virtualFlow.getLastVisibleCell().getIndex() > numberOfRows-4) {
-                tableViewLog.scrollTo(numberOfRows - 1);
+            int numCurrentRows = change.getList().size();
+            int numPreviousRows = numCurrentRows - numAdditionalRows;
+            var virtualFlow = virtualFlows.computeIfAbsent(tableViewLog.getSkin(), LogViewer::findVirtualFlow);
+
+            // Scroll to bottom if the current last row is visible
+            if (virtualFlow != null && numCurrentRows > 0) {
+                var lastVisible = virtualFlow.getLastVisibleCell();
+                var currentLastVisibleIndex = lastVisible == null ? -1 : lastVisible.getIndex();
+                if (currentLastVisibleIndex < previousLastVisibleIndex)
+                    // If we scrolled up, we don't want to scroll to the bottom automatically any longer
+                    scrollToBottom = false;
+                else if (currentLastVisibleIndex >= numPreviousRows-1)
+                    // If the last row is visible, we don't need to do anything now -
+                    // but we want to scroll to bottom when it becomes necessary
+                    scrollToBottom = true;
+                if (scrollToBottom) {
+                    // Follow the current behavior according to the scrollToBottom flag
+                    tableViewLog.scrollTo(numCurrentRows - 1);
+                    // Note that setting the virtual flow position seems *much* faster than using TableView.scrollTo
+                    // with large logs (e.g. at trace level), but it only seems to work sometimes...
+//                    virtualFlow.setPosition(1.0);
+                }
+                previousLastVisibleIndex = currentLastVisibleIndex;
             }
         });
 
@@ -228,6 +277,26 @@ public class LogViewer extends BorderPane {
         colThread.setCellFactory(column -> new GenericTableCell(LogMessage::threadName));
         colTimestamp.setCellFactory(column -> new GenericTableCell(logMessage -> TIMESTAMP_FORMAT.format(new Date(logMessage.timestamp()))));
         colMessage.setCellFactory(column -> new GenericTableCell(LogMessage::message));
+    }
+
+    private boolean isLogShowing() {
+        var scene = getScene();
+        if (scene != null) {
+            var window = scene.getWindow();
+            return window != null && window.isShowing();
+        }
+        return false;
+    }
+
+    private static VirtualFlow<?> findVirtualFlow(Skin<?> tableSkin) {
+        if (tableSkin instanceof TableViewSkin<?> skin) {
+            return skin.getChildren().stream()
+                    .filter(VirtualFlow.class::isInstance)
+                    .map(VirtualFlow.class::cast)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
     }
 
     private void setUpLogCounter() {
