@@ -19,7 +19,6 @@ publishing {
 
     publications {
         mavenJava(MavenPublication) {
-            groupId = 'io.github.qupath'
             from components.java
 
             pom {
