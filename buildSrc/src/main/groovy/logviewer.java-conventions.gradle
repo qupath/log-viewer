@@ -7,4 +7,5 @@ java {
     withJavadocJar()
 }
 
+group = 'io.github.qupath'
 version = rootProject.version
