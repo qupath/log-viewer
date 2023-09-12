@@ -159,6 +159,11 @@ public class LogViewer extends BorderPane {
     }
 
     @FXML
+    private void clearLogs() {
+        logViewerModel.clearAllLogs();
+    }
+
+    @FXML
     private void onThreadItemSelected(ActionEvent e) {
         RadioMenuItem item = (RadioMenuItem) e.getSource();
 

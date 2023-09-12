@@ -193,6 +193,13 @@ class LogViewerModel implements LoggerListener {
         return allThreads;
     }
 
+    /**
+     * Remove all current log messages
+     */
+    public void clearAllLogs() {
+        allLogs.clear();
+    }
+
     private void setUpLoggerManager() {
         Optional<LoggerManager> loggerManagerOptional = getCurrentLoggerManager();
 

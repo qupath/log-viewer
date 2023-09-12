@@ -78,6 +78,7 @@
                        <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                    </accelerator>
                </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#clearLogs" text="%Action.Edit.clear" />
            </Menu>
            <Menu fx:id="threadFilterMenu" mnemonicParsing="false" text="%Menu.Thread">
                <RadioMenuItem fx:id="allThreadsItem" mnemonicParsing="false" onAction="#onThreadItemSelected" selected="true" text="%Action.Thread.allThreads">
