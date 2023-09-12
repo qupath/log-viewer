@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TestLogMessagePredicates {
+
     private String generateRandomString(int length) {
         byte[] array = new byte[length];
         new Random().nextBytes(array);

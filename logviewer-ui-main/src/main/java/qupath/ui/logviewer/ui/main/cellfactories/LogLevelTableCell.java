@@ -14,6 +14,7 @@ import java.util.function.Function;
  * It creates an icon representing the log level.
  */
 public class LogLevelTableCell extends GenericTableCell {
+
     private final Circle icon = new Circle(5.0);
 
     /**

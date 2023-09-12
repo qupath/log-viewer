@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TestLogMessageCounts {
+
     @BeforeAll
     static void initJfxRuntime() {
         JavaFXUtils.initJfxRuntime();

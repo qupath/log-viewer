@@ -21,6 +21,7 @@ import java.util.function.Predicate;
  * so the controller can set their values and listen to changes.
  */
 class LogViewerModel implements LoggerListener {
+
     private final BooleanProperty loggingFrameworkFoundProperty = new SimpleBooleanProperty(false);
     private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList();
     private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);

@@ -11,6 +11,7 @@ import javafx.collections.ObservableList;
  * Counts the number of LogMessage of each level of an <a href="https://docs.oracle.com/javase/8/javafx/api/javafx/collections/ObservableList.html">ObservableList</a>.
  */
 class LogMessageCounts {
+
     private final ReadOnlyIntegerWrapper allMessagesCount = new ReadOnlyIntegerWrapper(0);
     private final ReadOnlyIntegerWrapper errorLevelCount = new ReadOnlyIntegerWrapper(0);
     private final ReadOnlyIntegerWrapper warnLevelCount = new ReadOnlyIntegerWrapper(0);

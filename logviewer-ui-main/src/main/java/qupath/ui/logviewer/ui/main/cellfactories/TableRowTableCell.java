@@ -8,6 +8,7 @@ import java.util.function.Function;
  * Cell factory of the log index column.
  */
 public class TableRowTableCell extends GenericTableCell {
+
     /**
      * Creates a cell factory for the log index column.
      *

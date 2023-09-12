@@ -36,9 +36,9 @@ import java.util.*;
  * so it can be added to a JavaFX scene.
  */
 public class LogViewer extends BorderPane {
-    private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(System.getProperty("timestamp.format", "HH:mm:ss"));
-    private final static ResourceBundle resources = ResourceBundle.getBundle("qupath.ui.logviewer.ui.main.strings");
 
+    private static final DateFormat TIMESTAMP_FORMAT = new SimpleDateFormat(System.getProperty("timestamp.format", "HH:mm:ss"));
+    private static final ResourceBundle resources = ResourceBundle.getBundle("qupath.ui.logviewer.ui.main.strings");
     @FXML
     private MenuBar menubar;
     @FXML
@@ -80,7 +80,11 @@ public class LogViewer extends BorderPane {
     @FXML
     private TextArea textAreaLog;
     @FXML
-    private Label itemCounter;
+    private Label warningsCount;
+    @FXML
+    private Label errorsCount;
+    @FXML
+    private Label shownCount;
     private final Collection<String> allLogLevelNamesToLowerCase = Arrays.stream(Level.values()).map(LogViewer::toStyleClass).toList();
     private final LogViewerModel logViewerModel = new LogViewerModel();
 
@@ -224,6 +228,24 @@ public class LogViewer extends BorderPane {
         }
     }
 
+    @FXML
+    private void onWarnCountClicked() {
+        int indexOfLastUnselectedMessage = getIndexOfLastUnselectedMessage(Level.WARN);
+        if (indexOfLastUnselectedMessage >= 0 && indexOfLastUnselectedMessage < tableViewLog.getItems().size()) {
+            tableViewLog.getSelectionModel().clearAndSelect(indexOfLastUnselectedMessage);
+            tableViewLog.scrollTo(indexOfLastUnselectedMessage);
+        }
+    }
+
+    @FXML
+    private void onErrorCountClicked() {
+        int indexOfLastUnselectedMessage = getIndexOfLastUnselectedMessage(Level.ERROR);
+        if (indexOfLastUnselectedMessage >= 0 && indexOfLastUnselectedMessage < tableViewLog.getItems().size()) {
+            tableViewLog.getSelectionModel().clearAndSelect(indexOfLastUnselectedMessage);
+            tableViewLog.scrollTo(indexOfLastUnselectedMessage);
+        }
+    }
+
     private static String toStyleClass(Level level) {
         return level.name().toLowerCase();
     }
@@ -330,13 +352,35 @@ public class LogViewer extends BorderPane {
     }
 
     private void setUpLogCounter() {
-        itemCounter.textProperty().bind(Bindings.concat(
-                logViewerModel.getFilteredLogsMessageCounts().warnLevelCountsProperty(), " ", resources.getString("LogCount.warnings"), ", ",
-                logViewerModel.getFilteredLogsMessageCounts().errorLevelCountsProperty(), " ", resources.getString("LogCount.errors"),
-                Bindings.when(logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty().isEqualTo(logViewerModel.getAllLogsMessageCounts().allLevelCountsProperty()))
-                        .then(Bindings.concat(" (",  logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty(), " ", resources.getString("LogCount.total"), ")"))
-                        .otherwise(Bindings.concat(" (",  logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty(), "/", logViewerModel.getAllLogsMessageCounts().allLevelCountsProperty(), " ", resources.getString("LogCount.shown"), ")"))
+        warningsCount.textProperty().bind(Bindings.concat(
+                logViewerModel.getFilteredLogsMessageCounts().warnLevelCountsProperty(),
+                " ",
+                resources.getString("LogCount.warnings")
         ));
+
+        errorsCount.textProperty().bind(Bindings.concat(
+                logViewerModel.getFilteredLogsMessageCounts().errorLevelCountsProperty(),
+                " ",
+                resources.getString("LogCount.errors")
+        ));
+        
+        shownCount.textProperty().bind(
+                Bindings.when(logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty().isEqualTo(logViewerModel.getAllLogsMessageCounts().allLevelCountsProperty()))
+                        .then(Bindings.concat(
+                                " (",
+                                logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty(),
+                                " ",
+                                resources.getString("LogCount.total"), ")"
+                        ))
+                        .otherwise(Bindings.concat(
+                                " (",
+                                logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty(),
+                                "/",
+                                logViewerModel.getAllLogsMessageCounts().allLevelCountsProperty(),
+                                " ",
+                                resources.getString("LogCount.shown"), ")"
+                        ))
+        );
     }
 
     private void setUpThreadFilter() {
@@ -388,5 +432,41 @@ public class LogViewer extends BorderPane {
 
     private static ObjectProperty<LogMessage> cellValueFactory(TableColumn.CellDataFeatures<LogMessage, LogMessage> cellData) {
         return new SimpleObjectProperty<>(cellData.getValue());
+    }
+
+    /**
+     * Get the index of the last unselected log message of the table:
+     * <ul>
+     *     <li>whose level is equal to {@code level}</li>
+     *     <li>which is located above all currently selected log messages of level {@code level}</li>
+     * </ul>
+     *
+     * @param level  the log level to consider
+     * @return the position as described, or -1 if no element was found
+     */
+    private int getIndexOfLastUnselectedMessage(Level level) {
+        List<LogMessage> selectedMessages = tableViewLog.getSelectionModel().getSelectedItems();
+        List<LogMessage> displayedMessages = tableViewLog.getItems();
+
+        LogMessage lastSelectedWarnMessage = null;
+        for (int i=selectedMessages.size()-1; i>=0; --i) {
+            if (selectedMessages.get(i).level().equals(level)) {
+                lastSelectedWarnMessage = selectedMessages.get(i);
+                break;
+            }
+        }
+
+        int startingIndex = displayedMessages.indexOf(lastSelectedWarnMessage);
+        if (startingIndex == -1) {
+            startingIndex = displayedMessages.size();
+        }
+
+        for (int i=startingIndex-1; i>=0; --i) {
+            if (displayedMessages.get(i).level().equals(level)) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 }

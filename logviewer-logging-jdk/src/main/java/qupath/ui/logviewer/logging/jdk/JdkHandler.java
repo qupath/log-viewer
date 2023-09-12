@@ -7,6 +7,7 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 class JdkHandler extends Handler {
+
     private final LoggerListener listener;
 
     public JdkHandler(LoggerListener listener) {

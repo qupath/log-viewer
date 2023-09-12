@@ -8,6 +8,7 @@ import java.util.concurrent.Semaphore;
  * Utilities functions to help implementing unit tests on JavaFX objects.
  */
 public final class JavaFXUtils {
+
     private JavaFXUtils() {}
 
     /**

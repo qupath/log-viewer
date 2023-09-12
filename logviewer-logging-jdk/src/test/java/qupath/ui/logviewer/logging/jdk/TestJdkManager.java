@@ -16,8 +16,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TestJdkManager {
-    private final static Logger slf4jLogger = LoggerFactory.getLogger(JdkManager.class);
-    private final static java.util.logging.Logger jdk14Logger = java.util.logging.Logger.getLogger("");
+
+    private static final Logger slf4jLogger = LoggerFactory.getLogger(JdkManager.class);
+    private static final java.util.logging.Logger jdk14Logger = java.util.logging.Logger.getLogger("");
 
     @Test
     void Check_Framework_Active() {

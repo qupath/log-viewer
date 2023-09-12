@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TestLogViewerModel {
+
     @BeforeAll
     static void initJfxRuntime() {
         JavaFXUtils.initJfxRuntime();

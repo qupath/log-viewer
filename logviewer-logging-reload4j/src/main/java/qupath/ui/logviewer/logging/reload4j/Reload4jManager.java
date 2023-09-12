@@ -11,7 +11,8 @@ import org.slf4j.event.Level;
  * Manager setting up and managing the Reload4j logger.
  */
 public class Reload4jManager implements LoggerManager {
-    private final static Logger rootLogger = Logger.getRootLogger();
+
+    private static final Logger rootLogger = Logger.getRootLogger();
 
     @Override
     public void addListener(LoggerListener listener) {

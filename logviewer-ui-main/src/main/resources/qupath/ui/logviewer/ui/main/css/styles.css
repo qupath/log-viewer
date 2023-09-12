@@ -44,7 +44,7 @@
     -fx-fill: error;
 }
 
-/* Text in table */
+/* Text in table / bottom counter */
 .error {
     -fx-text-fill: error;
 }

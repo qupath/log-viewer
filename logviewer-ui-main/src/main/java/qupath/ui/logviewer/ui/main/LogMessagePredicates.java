@@ -11,6 +11,7 @@ import java.util.regex.PatternSyntaxException;
  * that filter {@code LogMessage} based on the {@code message} property.
  */
 final class LogMessagePredicates {
+
     private LogMessagePredicates() {}
 
     /**

@@ -8,6 +8,7 @@ import org.slf4j.event.Level;
  * Interface for logging frameworks.
  */
 public interface LoggerManager {
+
     /**
      * Link this logger manager with a logger listener.
      * Each new logged message should be forwarded to the logger listener via the {@link LoggerListener#addLogMessage(LogMessage) addLogMessage} function.
