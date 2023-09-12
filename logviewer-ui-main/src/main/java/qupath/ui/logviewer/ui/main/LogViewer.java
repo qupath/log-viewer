@@ -2,6 +2,7 @@ package qupath.ui.logviewer.ui.main;
 
 import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.control.skin.VirtualFlow;
+import javafx.stage.FileChooser;
 import qupath.ui.logviewer.api.LogMessage;
 import qupath.ui.logviewer.ui.main.cellfactories.GenericTableCell;
 import qupath.ui.logviewer.ui.main.cellfactories.LogLevelTableCell;
@@ -23,10 +24,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import org.slf4j.event.Level;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -146,6 +146,31 @@ public class LogViewer extends BorderPane {
         setUpTable();
         setUpLogCounter();
         setUpThreadFilter();
+    }
+
+    @FXML
+    private void save() {
+        FileChooser fileChooser = new FileChooser();
+
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Log files (*.log)", "*.log", "*.LOG");
+        fileChooser.getExtensionFilters().add(extFilter);
+        File file = fileChooser.showSaveDialog(getScene().getWindow());
+
+        if (file != null) {
+            if (!file.getName().endsWith(".log") && !file.getName().endsWith(".LOG")) {
+                file = new File(file.getAbsolutePath() + ".log");
+            }
+
+            try {
+                logViewerModel.saveDisplayedLogsToFile(file);
+                new Alert(
+                        Alert.AlertType.INFORMATION,
+                        MessageFormat.format(resources.getString("Action.File.saved"), file.getAbsolutePath())
+                ).show();
+            } catch (FileNotFoundException e) {
+                new Alert(Alert.AlertType.ERROR, e.getLocalizedMessage()).show();
+            }
+        }
     }
 
     @FXML

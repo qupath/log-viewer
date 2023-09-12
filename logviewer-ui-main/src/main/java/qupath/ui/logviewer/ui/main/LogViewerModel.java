@@ -9,6 +9,9 @@ import javafx.collections.*;
 import javafx.collections.transformation.FilteredList;
 import org.slf4j.event.Level;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -198,6 +201,20 @@ class LogViewerModel implements LoggerListener {
      */
     public void clearAllLogs() {
         allLogs.clear();
+    }
+
+    /**
+     * Save all currently displayed logs to the given file.
+     *
+     * @param file  the file to save the logs to
+     * @throws FileNotFoundException when the file couldn't be written to
+     */
+    public void saveDisplayedLogsToFile(File file) throws FileNotFoundException {
+        try (PrintWriter writer = new PrintWriter(file)) {
+            for (LogMessage logMessage: filteredLogs) {
+                writer.println(logMessage.toReadableString());
+            }
+        }
     }
 
     private void setUpLoggerManager() {
