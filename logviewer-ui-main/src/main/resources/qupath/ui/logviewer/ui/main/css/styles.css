@@ -44,7 +44,7 @@
     -fx-fill: error;
 }
 
-/* Text in table / bottom counter */
+/* Text in table */
 .error {
     -fx-text-fill: error;
 }
@@ -62,4 +62,14 @@
 /* Increase column spacing */
 .table-cell {
     -fx-padding: 2 5 2 5;
+}
+
+/* Text in table / bottom counter */
+.error-counter {
+    -fx-text-fill: error;
+}
+
+/* Bottom counter */
+.warn-counter {
+    -fx-text-fill: warn;
 }

@@ -1,8 +1,11 @@
 package qupath.ui.logviewer.ui.main;
 
+import javafx.animation.FadeTransition;
+import javafx.scene.Cursor;
 import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.control.skin.VirtualFlow;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
 import qupath.ui.logviewer.api.LogMessage;
 import qupath.ui.logviewer.ui.main.cellfactories.GenericTableCell;
 import qupath.ui.logviewer.ui.main.cellfactories.LogLevelTableCell;
@@ -85,6 +88,8 @@ public class LogViewer extends BorderPane {
     private Label errorsCount;
     @FXML
     private Label shownCount;
+    @FXML
+    private Label status;
     private final Collection<String> allLogLevelNamesToLowerCase = Arrays.stream(Level.values()).map(LogViewer::toStyleClass).toList();
     private final LogViewerModel logViewerModel = new LogViewerModel();
 
@@ -167,10 +172,7 @@ public class LogViewer extends BorderPane {
 
             try {
                 logViewerModel.saveDisplayedLogsToFile(file);
-                new Alert(
-                        Alert.AlertType.INFORMATION,
-                        MessageFormat.format(resources.getString("Action.File.saved"), file.getAbsolutePath())
-                ).show();
+                setStatus(MessageFormat.format(resources.getString("LogCount.fileSaved"), file.getAbsolutePath()));
             } catch (FileNotFoundException e) {
                 new Alert(Alert.AlertType.ERROR, e.getLocalizedMessage()).show();
             }
@@ -184,7 +186,16 @@ public class LogViewer extends BorderPane {
 
     @FXML
     private void copySelectedLines() {
-        copyTextToClipboard(selectedLogMessagesToString());
+        if (!tableViewLog.getSelectionModel().getSelectedItems().isEmpty()) {
+            copyTextToClipboard(selectedLogMessagesToString());
+
+            int numberOfMessagesCopied = tableViewLog.getSelectionModel().getSelectedItems().size();
+            if (numberOfMessagesCopied == 1) {
+                setStatus(resources.getString("LogCount.1MessageCopied"));
+            } else {
+                setStatus(MessageFormat.format(resources.getString("LogCount.XMessagesCopied"), numberOfMessagesCopied));
+            }
+        }
     }
 
     @FXML
@@ -270,8 +281,8 @@ public class LogViewer extends BorderPane {
     private void setUpTable() {
         tableViewLog.placeholderProperty().bind(
                 Bindings.when(logViewerModel.getLoggingFrameworkFoundProperty())
-                        .then(new Text(resources.getString("Table.noLogs")))
-                        .otherwise(new Text(resources.getString("Table.noLoggingManagerFound")))
+                        .then(new Label(resources.getString("Table.noLogs")))
+                        .otherwise(new Label(resources.getString("Table.noLoggingManagerFound")))
         );
         tableViewLog.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableViewLog.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
@@ -331,38 +342,34 @@ public class LogViewer extends BorderPane {
         colMessage.setCellFactory(column -> new GenericTableCell(LogMessage::message));
     }
 
-    private boolean isLogShowing() {
-        var scene = getScene();
-        if (scene != null) {
-            var window = scene.getWindow();
-            return window != null && window.isShowing();
-        }
-        return false;
-    }
-
-    private static VirtualFlow<?> findVirtualFlow(Skin<?> tableSkin) {
-        if (tableSkin instanceof TableViewSkin<?> skin) {
-            return skin.getChildren().stream()
-                    .filter(VirtualFlow.class::isInstance)
-                    .map(VirtualFlow.class::cast)
-                    .findFirst()
-                    .orElse(null);
-        }
-        return null;
-    }
-
     private void setUpLogCounter() {
-        warningsCount.textProperty().bind(Bindings.concat(
-                logViewerModel.getFilteredLogsMessageCounts().warnLevelCountsProperty(),
-                " ",
-                resources.getString("LogCount.warnings")
+        warningsCount.textProperty().bind(Bindings.when(displayWarnButton.selectedProperty()).then(
+                Bindings.concat(
+                        logViewerModel.getFilteredLogsMessageCounts().warnLevelCountsProperty(),
+                        " ",
+                        resources.getString("LogCount.warnings")
+                )
+        ).otherwise(
+                resources.getString("LogCount.warningsHidden")
         ));
 
-        errorsCount.textProperty().bind(Bindings.concat(
-                logViewerModel.getFilteredLogsMessageCounts().errorLevelCountsProperty(),
-                " ",
-                resources.getString("LogCount.errors")
+        warningsCount.cursorProperty().bind(Bindings.when(logViewerModel.getFilteredLogsMessageCounts().warnLevelCountsProperty().isEqualTo(0))
+                .then(Cursor.DEFAULT)
+                .otherwise(Cursor.HAND));
+
+        errorsCount.textProperty().bind(Bindings.when(displayErrorButton.selectedProperty()).then(
+                Bindings.concat(
+                        logViewerModel.getFilteredLogsMessageCounts().errorLevelCountsProperty(),
+                        " ",
+                        resources.getString("LogCount.errors")
+                )
+        ).otherwise(
+                resources.getString("LogCount.errorsHidden")
         ));
+
+        errorsCount.cursorProperty().bind(Bindings.when(logViewerModel.getFilteredLogsMessageCounts().errorLevelCountsProperty().isEqualTo(0))
+                .then(Cursor.DEFAULT)
+                .otherwise(Cursor.HAND));
         
         shownCount.textProperty().bind(
                 Bindings.when(logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty().isEqualTo(logViewerModel.getAllLogsMessageCounts().allLevelCountsProperty()))
@@ -394,6 +401,37 @@ public class LogViewer extends BorderPane {
             item.setToggleGroup(threadFilterGroup);
             threadFilterMenu.getItems().add(item);
         });
+    }
+
+    private void setStatus(String message) {
+        status.setText(message);
+
+        FadeTransition fade = new FadeTransition();
+        fade.setDuration(Duration.millis(5000));
+        fade.setFromValue(1);
+        fade.setToValue(0);
+        fade.setNode(status);
+        fade.play();
+    }
+
+    private boolean isLogShowing() {
+        var scene = getScene();
+        if (scene != null) {
+            var window = scene.getWindow();
+            return window != null && window.isShowing();
+        }
+        return false;
+    }
+
+    private static VirtualFlow<?> findVirtualFlow(Skin<?> tableSkin) {
+        if (tableSkin instanceof TableViewSkin<?> skin) {
+            return skin.getChildren().stream()
+                    .filter(VirtualFlow.class::isInstance)
+                    .map(VirtualFlow.class::cast)
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
     }
 
     private String selectedLogMessagesToString() {
@@ -438,30 +476,38 @@ public class LogViewer extends BorderPane {
      * Get the index of the last unselected log message of the table:
      * <ul>
      *     <li>whose level is equal to {@code level}</li>
-     *     <li>which is located above all currently selected log messages of level {@code level}</li>
+     *     <li>
+     *         which is located above all currently selected log messages of level {@code level},
+     *         or (if not found) located at the bottom of the table</li>
      * </ul>
      *
      * @param level  the log level to consider
-     * @return the position as described, or -1 if no element was found
+     * @return the position as described, or -1 if no log message of such level was found
      */
     private int getIndexOfLastUnselectedMessage(Level level) {
         List<LogMessage> selectedMessages = tableViewLog.getSelectionModel().getSelectedItems();
         List<LogMessage> displayedMessages = tableViewLog.getItems();
 
-        LogMessage lastSelectedWarnMessage = null;
+        LogMessage lastSelectedMessageWithGivenLevel = null;
         for (int i=selectedMessages.size()-1; i>=0; --i) {
             if (selectedMessages.get(i).level().equals(level)) {
-                lastSelectedWarnMessage = selectedMessages.get(i);
+                lastSelectedMessageWithGivenLevel = selectedMessages.get(i);
                 break;
             }
         }
 
-        int startingIndex = displayedMessages.indexOf(lastSelectedWarnMessage);
+        int startingIndex = displayedMessages.indexOf(lastSelectedMessageWithGivenLevel);
         if (startingIndex == -1) {
             startingIndex = displayedMessages.size();
         }
 
         for (int i=startingIndex-1; i>=0; --i) {
+            if (displayedMessages.get(i).level().equals(level)) {
+                return i;
+            }
+        }
+
+        for (int i=displayedMessages.size()-1; i>=0; --i) {
             if (displayedMessages.get(i).level().equals(level)) {
                 return i;
             }
