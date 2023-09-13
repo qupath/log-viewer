@@ -144,8 +144,7 @@
                   <Font name="System Bold" size="13.0" />
                </font>
             </Label>
-            <Region HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#copySelectedLines" text="%LogCount.copy">
+            <Button fx:id="copyButton" mnemonicParsing="false" onAction="#copySelectedLines" text="%LogCount.copy">
                <font>
                   <Font size="15.0" />
                </font>

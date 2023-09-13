@@ -99,6 +99,8 @@ public class LogViewer extends BorderPane {
     private Label shownCount;
     @FXML
     private Label status;
+    @FXML
+    private Button copyButton;
     private final Collection<String> allLogLevelNamesToLowerCase = Arrays.stream(Level.values()).map(LogViewer::toStyleClass).toList();
     private final LogViewerModel logViewerModel = new LogViewerModel();
 
@@ -162,7 +164,7 @@ public class LogViewer extends BorderPane {
         setUpDisplayedLogLevels();
         setUpMessageFilter();
         setUpTable();
-        setUpLogCounter();
+        setUpFooter();
         setUpThreadFilter();
     }
 
@@ -418,29 +420,47 @@ public class LogViewer extends BorderPane {
         colMessage.setCellFactory(column -> new GenericTableCell(LogMessage::message));
     }
 
-    private void setUpLogCounter() {
-        warningsCount.textProperty().bind(Bindings.when(displayWarnButton.selectedProperty()).then(
-                Bindings.concat(
-                        logViewerModel.getFilteredLogsMessageCounts().warnLevelCountsProperty(),
-                        " ",
-                        resources.getString("LogCount.warnings")
-                )
-        ).otherwise(
-                resources.getString("LogCount.warningsHidden")
+    private void setUpFooter() {
+        warningsCount.textProperty().bind(Bindings.createStringBinding(
+                () -> {
+                    int numberOfWarnMessages = logViewerModel.getAllLogsMessageCounts().warnLevelCountsProperty().get();
+
+                    if (numberOfWarnMessages == 0) {
+                        return "";
+                    } else if (displayWarnButton.isSelected()) {
+                        if (numberOfWarnMessages == 1) {
+                            return resources.getString("LogCount.1Warning");
+                        } else {
+                            return MessageFormat.format(resources.getString("LogCount.XWarnings"), numberOfWarnMessages);
+                        }
+                    } else {
+                        return resources.getString("LogCount.warningsHidden");
+                    }
+                },
+                displayWarnButton.selectedProperty(), logViewerModel.getAllLogsMessageCounts().warnLevelCountsProperty()
         ));
 
         warningsCount.cursorProperty().bind(Bindings.when(logViewerModel.getFilteredLogsMessageCounts().warnLevelCountsProperty().isEqualTo(0))
                 .then(Cursor.DEFAULT)
                 .otherwise(Cursor.HAND));
 
-        errorsCount.textProperty().bind(Bindings.when(displayErrorButton.selectedProperty()).then(
-                Bindings.concat(
-                        logViewerModel.getFilteredLogsMessageCounts().errorLevelCountsProperty(),
-                        " ",
-                        resources.getString("LogCount.errors")
-                )
-        ).otherwise(
-                resources.getString("LogCount.errorsHidden")
+        errorsCount.textProperty().bind(Bindings.createStringBinding(
+                () -> {
+                    int numberOfErrorMessages = logViewerModel.getAllLogsMessageCounts().errorLevelCountsProperty().get();
+
+                    if (numberOfErrorMessages == 0) {
+                        return "";
+                    } else if (displayErrorButton.isSelected()) {
+                        if (numberOfErrorMessages == 1) {
+                            return resources.getString("LogCount.1Error");
+                        } else {
+                            return MessageFormat.format(resources.getString("LogCount.XErrors"), numberOfErrorMessages);
+                        }
+                    } else {
+                        return resources.getString("LogCount.errorsHidden");
+                    }
+                },
+                displayErrorButton.selectedProperty(), logViewerModel.getAllLogsMessageCounts().errorLevelCountsProperty()
         ));
 
         errorsCount.cursorProperty().bind(Bindings.when(logViewerModel.getFilteredLogsMessageCounts().errorLevelCountsProperty().isEqualTo(0))
@@ -464,6 +484,11 @@ public class LogViewer extends BorderPane {
                                 resources.getString("LogCount.shown"), ")"
                         ))
         );
+
+        copyButton.disableProperty().bind(Bindings.equal(
+                Bindings.size(tableViewLog.getSelectionModel().getSelectedItems()),
+                0
+        ));
     }
 
     private void setUpThreadFilter() {

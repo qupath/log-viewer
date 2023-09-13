@@ -6,7 +6,7 @@
 .root {
     trace: darkgray;
     debug: cornflowerblue;
-    warn: gold;
+    warn: darkorange;
     error: crimson;
 }
 
