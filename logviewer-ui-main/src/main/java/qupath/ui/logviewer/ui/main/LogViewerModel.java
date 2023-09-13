@@ -64,9 +64,8 @@ class LogViewerModel implements LoggerListener {
      *
      * @return the current log level
      */
-    public String getRootLevel() {
-        Level rootLevel = loggerManager.getRootLogLevel();
-        return rootLevel == null ? "" : rootLevel.toString();
+    public Level getRootLevel() {
+        return loggerManager.getRootLogLevel();
     }
 
     /**
@@ -74,8 +73,8 @@ class LogViewerModel implements LoggerListener {
      *
      * @param level  the new current log level
      */
-    public void setRootLevel(String level) {
-        loggerManager.setRootLogLevel(Level.valueOf(level));
+    public void setRootLevel(Level level) {
+        loggerManager.setRootLogLevel(level);
     }
 
     /**

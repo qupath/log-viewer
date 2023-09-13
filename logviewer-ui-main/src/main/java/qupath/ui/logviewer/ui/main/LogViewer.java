@@ -16,15 +16,12 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.*;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.text.Text;
 import org.slf4j.event.Level;
 
 import java.io.*;
@@ -51,8 +48,6 @@ public class LogViewer extends BorderPane {
     @FXML
     private RadioMenuItem allThreadsItem;
     @FXML
-    private HBox displayedLogLevelsGroup;
-    @FXML
     private ToggleButton regexButton;
     @FXML
     private Tooltip regexTooltip;
@@ -78,6 +73,8 @@ public class LogViewer extends BorderPane {
     private ToggleButton displayTraceButton;
     @FXML
     private Tooltip displayTraceTooltip;
+    @FXML
+    private ComboBox<Level> minimumLevel;
     @FXML
     private TableView<LogMessage> tableViewLog;
     @FXML
@@ -170,6 +167,11 @@ public class LogViewer extends BorderPane {
     }
 
     @FXML
+    public void onMouseEnteredOnWindow(){
+        minimumLevel.getSelectionModel().select(logViewerModel.getRootLevel());
+    }
+
+    @FXML
     private void save() {
         FileChooser fileChooser = new FileChooser();
 
@@ -225,23 +227,6 @@ public class LogViewer extends BorderPane {
     }
 
     @FXML
-    private void onMinimumLogLevelMenuClicked(Event event) {
-        String rootLevel = logViewerModel.getRootLevel();
-
-        Menu minimumLogLevelMenu = (Menu) event.getSource();
-        for (MenuItem item : minimumLogLevelMenu.getItems()) {
-            RadioMenuItem radioMenuItem = (RadioMenuItem) item;
-            radioMenuItem.setSelected(radioMenuItem.getText().equals(rootLevel));
-        }
-    }
-
-    @FXML
-    private void onMinimumLogLevelItemClicked(ActionEvent actionEvent) {
-        RadioMenuItem item = (RadioMenuItem) actionEvent.getSource();
-        logViewerModel.setRootLevel(item.getText());
-    }
-
-    @FXML
     private void onDisplayedLogLevelsItemClicked(ActionEvent actionEvent) {
         ToggleButton item = (ToggleButton) actionEvent.getSource();
         if (item.isSelected()) {
@@ -274,11 +259,61 @@ public class LogViewer extends BorderPane {
     }
 
     private void setUpDisplayedLogLevels() {
-        displayErrorButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().errorLevelCountsProperty().isEqualTo(0));
-        displayWarnButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().warnLevelCountsProperty().isEqualTo(0));
-        displayInfoButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().infoLevelCountsProperty().isEqualTo(0));
-        displayDebugButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().debugLevelCountsProperty().isEqualTo(0));
-        displayTraceButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().traceLevelCountsProperty().isEqualTo(0));
+        displayErrorButton.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> {
+                    if (minimumLevel.getValue() != null) {
+                        return logViewerModel.getAllLogsMessageCounts().errorLevelCountsProperty().get() == 0
+                                && minimumLevel.getValue().toInt() > Level.ERROR.toInt();
+                    } else {
+                        return false;
+                    }
+                },
+                logViewerModel.getAllLogsMessageCounts().errorLevelCountsProperty(), minimumLevel.valueProperty()
+        ));
+        displayWarnButton.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> {
+                    if (minimumLevel.getValue() != null) {
+                        return logViewerModel.getAllLogsMessageCounts().warnLevelCountsProperty().get() == 0
+                                && minimumLevel.getValue().toInt() > Level.WARN.toInt();
+                    } else {
+                        return false;
+                    }
+                },
+                logViewerModel.getAllLogsMessageCounts().warnLevelCountsProperty(), minimumLevel.valueProperty()
+        ));
+        displayDebugButton.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> {
+                    if (minimumLevel.getValue() != null) {
+                        return logViewerModel.getAllLogsMessageCounts().debugLevelCountsProperty().get() == 0
+                                && minimumLevel.getValue().toInt() > Level.DEBUG.toInt();
+                    } else {
+                        return false;
+                    }
+                },
+                logViewerModel.getAllLogsMessageCounts().debugLevelCountsProperty(), minimumLevel.valueProperty()
+        ));
+        displayInfoButton.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> {
+                    if (minimumLevel.getValue() != null) {
+                        return logViewerModel.getAllLogsMessageCounts().infoLevelCountsProperty().get() == 0
+                                && minimumLevel.getValue().toInt() > Level.INFO.toInt();
+                    } else {
+                        return false;
+                    }
+                },
+                logViewerModel.getAllLogsMessageCounts().infoLevelCountsProperty(), minimumLevel.valueProperty()
+        ));
+        displayTraceButton.disableProperty().bind(Bindings.createBooleanBinding(
+                () -> {
+                    if (minimumLevel.getValue() != null) {
+                        return logViewerModel.getAllLogsMessageCounts().traceLevelCountsProperty().get() == 0
+                                && minimumLevel.getValue().toInt() > Level.TRACE.toInt();
+                    } else {
+                        return false;
+                    }
+                },
+                logViewerModel.getAllLogsMessageCounts().traceLevelCountsProperty(), minimumLevel.valueProperty()
+        ));
 
         displayErrorTooltip.textProperty().bind(Bindings.when(displayErrorButton.selectedProperty())
                 .then(MessageFormat.format(resources.getString("Toolbar.Level.hide"), "ERROR"))
@@ -300,6 +335,10 @@ public class LogViewer extends BorderPane {
                 .then(MessageFormat.format(resources.getString("Toolbar.Level.hide"), "TRACE"))
                 .otherwise(MessageFormat.format(resources.getString("Toolbar.Level.show"), "TRACE"))
         );
+
+        minimumLevel.getItems().addAll(Level.values());
+        minimumLevel.getSelectionModel().select(logViewerModel.getRootLevel());
+        minimumLevel.valueProperty().addListener(change -> logViewerModel.setRootLevel(minimumLevel.getValue()));
     }
 
     private void setUpMessageFilter() {

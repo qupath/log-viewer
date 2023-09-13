@@ -60,10 +60,10 @@ public class TestLogViewerModel {
     @Test
     void Check_Root_Log_Level_Set() {
         LogViewerModel logViewerModel = new LogViewerModel();
-        String expectedLevel = String.valueOf(Level.ERROR);
+        Level expectedLevel = Level.ERROR;
 
         logViewerModel.setRootLevel(expectedLevel);
-        String level = logViewerModel.getRootLevel();
+        Level level = logViewerModel.getRootLevel();
 
         assertEquals(level, expectedLevel);
     }
