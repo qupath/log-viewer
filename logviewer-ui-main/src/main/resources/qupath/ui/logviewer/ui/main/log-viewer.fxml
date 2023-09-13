@@ -18,6 +18,7 @@
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -54,14 +55,32 @@
          </center>
          <top>
              <ToolBar maxWidth="1.7976931348623157E308" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-                 <ToggleButton fx:id="regexButton" mnemonicParsing="false" text=".*" />
+                 <ToggleButton fx:id="regexButton" mnemonicParsing="false" text=".*">
+                  <tooltip>
+                     <Tooltip fx:id="regexTooltip" />
+                  </tooltip></ToggleButton>
                  <TextField fx:id="messageFilter" prefColumnCount="16" promptText="%Toolbar.Filter.filterByText" HBox.hgrow="ALWAYS" />
                  <HBox fx:id="displayedLogLevelsGroup" alignment="CENTER" spacing="3.0" styleClass="displayed-log-levels">
-                     <ToggleButton fx:id="displayErrorButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="ERROR" />
-                     <ToggleButton fx:id="displayWarnButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="WARN" />
-                     <ToggleButton fx:id="displayInfoButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="INFO" />
-                     <ToggleButton fx:id="displayDebugButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="DEBUG" />
-                     <ToggleButton fx:id="displayTraceButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="TRACE" />
+                     <ToggleButton fx:id="displayErrorButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="ERROR">
+                     <tooltip>
+                        <Tooltip fx:id="displayErrorTooltip" />
+                     </tooltip></ToggleButton>
+                     <ToggleButton fx:id="displayWarnButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="WARN">
+                     <tooltip>
+                        <Tooltip fx:id="displayWarnTooltip" />
+                     </tooltip></ToggleButton>
+                     <ToggleButton fx:id="displayInfoButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="INFO">
+                     <tooltip>
+                        <Tooltip fx:id="displayInfoTooltip" />
+                     </tooltip></ToggleButton>
+                     <ToggleButton fx:id="displayDebugButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="DEBUG">
+                     <tooltip>
+                        <Tooltip fx:id="displayDebugTooltip" />
+                     </tooltip></ToggleButton>
+                     <ToggleButton fx:id="displayTraceButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="TRACE">
+                     <tooltip>
+                        <Tooltip fx:id="displayTraceTooltip" />
+                     </tooltip></ToggleButton>
                  </HBox>
              </ToolBar>
          </top>
@@ -130,7 +149,10 @@
             <Button mnemonicParsing="false" onAction="#copySelectedLines" text="%LogCount.copy">
                <font>
                   <Font size="15.0" />
-               </font></Button>
+               </font>
+               <tooltip>
+                  <Tooltip text="%LogCount.copySelected" />
+               </tooltip></Button>
          </children>
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

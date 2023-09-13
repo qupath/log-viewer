@@ -55,17 +55,29 @@ public class LogViewer extends BorderPane {
     @FXML
     private ToggleButton regexButton;
     @FXML
+    private Tooltip regexTooltip;
+    @FXML
     private TextField messageFilter;
     @FXML
     private ToggleButton displayErrorButton;
     @FXML
+    private Tooltip displayErrorTooltip;
+    @FXML
     private ToggleButton displayWarnButton;
+    @FXML
+    private Tooltip displayWarnTooltip;
     @FXML
     private ToggleButton displayInfoButton;
     @FXML
+    private Tooltip displayInfoTooltip;
+    @FXML
     private ToggleButton displayDebugButton;
     @FXML
+    private Tooltip displayDebugTooltip;
+    @FXML
     private ToggleButton displayTraceButton;
+    @FXML
+    private Tooltip displayTraceTooltip;
     @FXML
     private TableView<LogMessage> tableViewLog;
     @FXML
@@ -267,15 +279,40 @@ public class LogViewer extends BorderPane {
         displayInfoButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().infoLevelCountsProperty().isEqualTo(0));
         displayDebugButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().debugLevelCountsProperty().isEqualTo(0));
         displayTraceButton.disableProperty().bind(logViewerModel.getAllLogsMessageCounts().traceLevelCountsProperty().isEqualTo(0));
+
+        displayErrorTooltip.textProperty().bind(Bindings.when(displayErrorButton.selectedProperty())
+                .then(MessageFormat.format(resources.getString("Toolbar.Level.hide"), "ERROR"))
+                .otherwise(MessageFormat.format(resources.getString("Toolbar.Level.show"), "ERROR"))
+        );
+        displayWarnTooltip.textProperty().bind(Bindings.when(displayWarnButton.selectedProperty())
+                .then(MessageFormat.format(resources.getString("Toolbar.Level.hide"), "WARN"))
+                .otherwise(MessageFormat.format(resources.getString("Toolbar.Level.show"), "WARN"))
+        );
+        displayInfoTooltip.textProperty().bind(Bindings.when(displayInfoButton.selectedProperty())
+                .then(MessageFormat.format(resources.getString("Toolbar.Level.hide"), "INFO"))
+                .otherwise(MessageFormat.format(resources.getString("Toolbar.Level.show"), "INFO"))
+        );
+        displayDebugTooltip.textProperty().bind(Bindings.when(displayDebugButton.selectedProperty())
+                .then(MessageFormat.format(resources.getString("Toolbar.Level.hide"), "DEBUG"))
+                .otherwise(MessageFormat.format(resources.getString("Toolbar.Level.show"), "DEBUG"))
+        );
+        displayTraceTooltip.textProperty().bind(Bindings.when(displayTraceButton.selectedProperty())
+                .then(MessageFormat.format(resources.getString("Toolbar.Level.hide"), "TRACE"))
+                .otherwise(MessageFormat.format(resources.getString("Toolbar.Level.show"), "TRACE"))
+        );
     }
 
     private void setUpMessageFilter() {
         logViewerModel.getFilterByRegexProperty().bind(regexButton.selectedProperty());
         logViewerModel.getFilterProperty().bind(messageFilter.textProperty());
 
-        logViewerModel.getFilterByRegexProperty().addListener((l, o, n) ->
-                messageFilter.setPromptText(resources.getString(n ? "Toolbar.Filter.filterByRegex" : "Toolbar.Filter.filterByText"))
-        );
+        messageFilter.promptTextProperty().bind(Bindings.when(logViewerModel.getFilterByRegexProperty())
+                .then(resources.getString("Toolbar.Filter.filterByRegex"))
+                .otherwise(resources.getString("Toolbar.Filter.filterByText")));
+
+        regexTooltip.textProperty().bind(Bindings.when(logViewerModel.getFilterByRegexProperty())
+                .then(resources.getString("Toolbar.Filter.filterByText"))
+                .otherwise(resources.getString("Toolbar.Filter.filterByRegex")));
     }
 
     private void setUpTable() {
