@@ -16,8 +16,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TestReload4jManager {
-    private final static Logger slf4jLogger = LoggerFactory.getLogger(Reload4jManager.class);
-    private final static org.apache.log4j.Logger reload4jLogger = org.apache.log4j.Logger.getRootLogger();
+
+    private static final Logger slf4jLogger = LoggerFactory.getLogger(Reload4jManager.class);
+    private static final org.apache.log4j.Logger reload4jLogger = org.apache.log4j.Logger.getRootLogger();
 
     @Test
     void Check_Framework_Active() {

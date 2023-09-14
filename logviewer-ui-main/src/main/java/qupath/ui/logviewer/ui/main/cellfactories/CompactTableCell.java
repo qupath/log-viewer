@@ -12,7 +12,9 @@ import java.util.regex.Pattern;
  * If the text is still too long, "..." will be printed at the beginning of the cell.
  */
 public class CompactTableCell extends GenericTableCell {
+
     private final String delimiter;
+
     /**
      * Creates a cell factory for the logging class column.
      *

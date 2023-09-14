@@ -6,7 +6,7 @@
 .root {
     trace: darkgray;
     debug: cornflowerblue;
-    warn: gold;
+    warn: darkorange;
     error: crimson;
 }
 
@@ -15,10 +15,16 @@
     -fx-font-size: 10;
 }
 
+/* Minimum level button */
+.minimum-log-level {
+    -fx-font-size: 10;
+}
+
 /* Table cells */
 .table-cell {
     -fx-alignment: center;
     -fx-font-family: "IntelOne Mono";
+    -fx-padding: 2 5 2 5;
 }
 .col-message.table-cell {
     -fx-alignment: center-left;
@@ -59,7 +65,17 @@
     -fx-font-family: "IntelOne Mono";
 }
 
-/* Increase column spacing */
-.table-cell {
-    -fx-padding: 2 5 2 5;
+/* Text in table / bottom counter */
+.error-counter {
+    -fx-text-fill: error;
+}
+
+/* Bottom counter */
+.warn-counter {
+    -fx-text-fill: warn;
+}
+
+/* Copy button */
+.copy-button {
+    -fx-font-size: 10;
 }

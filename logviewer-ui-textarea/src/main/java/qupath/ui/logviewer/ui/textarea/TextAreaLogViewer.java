@@ -15,6 +15,7 @@ import javafx.scene.control.TextArea;
  * so it can be added to any JavaFX parent.
  */
 public class TextAreaLogViewer extends TextArea implements LoggerListener {
+
     /**
      * Create a new ConsoleLogViewer.
      */

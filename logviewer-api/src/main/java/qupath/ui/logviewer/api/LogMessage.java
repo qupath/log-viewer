@@ -26,6 +26,7 @@ public record LogMessage(
         String message,
         Throwable throwable
 ) {
+
     /**
      * Parse the log message to a human-readable format, for example:
      * {@code 10:56:14.579  [JavaFX Application Thread] ERROR   io.github.qupath.logviewer.app.LogViewerApp Exception   java.lang.RuntimeException:...}

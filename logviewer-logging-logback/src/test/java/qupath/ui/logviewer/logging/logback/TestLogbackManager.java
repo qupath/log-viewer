@@ -15,8 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class TestLogbackManager {
-    private final static Logger slf4jLogger = LoggerFactory.getLogger(LogbackManager.class);
-    private final static ch.qos.logback.classic.Logger logbackLogger = LogbackManager.getRootLogger();
+
+    private static final Logger slf4jLogger = LoggerFactory.getLogger(LogbackManager.class);
+    private static final ch.qos.logback.classic.Logger logbackLogger = LogbackManager.getRootLogger();
 
     @Test
     void Check_Framework_Active() {

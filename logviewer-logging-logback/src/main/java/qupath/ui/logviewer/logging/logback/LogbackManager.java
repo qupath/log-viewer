@@ -11,8 +11,9 @@ import org.slf4j.event.Level;
  * Manager setting up and managing the Logback logger.
  */
 public class LogbackManager implements LoggerManager {
-    private final static Logger slf4jLogger = LoggerFactory.getLogger(LogbackManager.class);
-    private final static ch.qos.logback.classic.Logger logbackRootLogger = getRootLogger();
+
+    private static final Logger slf4jLogger = LoggerFactory.getLogger(LogbackManager.class);
+    private static final ch.qos.logback.classic.Logger logbackRootLogger = getRootLogger();
 
     @Override
     public void addListener(LoggerListener listener) {

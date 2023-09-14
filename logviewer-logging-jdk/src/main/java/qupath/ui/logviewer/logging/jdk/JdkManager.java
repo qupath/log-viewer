@@ -12,7 +12,8 @@ import java.util.logging.Logger;
  * Manager setting up and managing the JDK 1.4 logger.
  */
 public class JdkManager implements LoggerManager {
-    private final static Logger rootLogger = Logger.getLogger("");
+
+    private static final Logger rootLogger = Logger.getLogger("");
 
     @Override
     public void addListener(LoggerListener listener) {

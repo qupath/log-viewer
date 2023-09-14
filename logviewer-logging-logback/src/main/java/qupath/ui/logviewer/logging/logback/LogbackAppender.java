@@ -7,6 +7,7 @@ import qupath.ui.logviewer.api.LogMessage;
 import qupath.ui.logviewer.api.listener.LoggerListener;
 
 class LogbackAppender extends AppenderBase<ILoggingEvent> {
+
     private final LoggerListener listener;
 
     public LogbackAppender(LoggerListener listener) {

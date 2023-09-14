@@ -25,10 +25,11 @@ import java.util.stream.IntStream;
  * Application starting one of the LogViewer implementations.
  */
 public class LogViewerApp extends Application {
-    private final static String MAIN_IMPLEMENTATION_NAME = "main";
-    private final static String TEXTAREA_IMPLEMENTATION_NAME = "textarea";
-    private final static String RICHTEXTFX_IMPLEMENTATION_NAME = "richtextfx";
-    private final static Logger logger = LoggerFactory.getLogger(LogViewerApp.class);
+
+    private static final String MAIN_IMPLEMENTATION_NAME = "main";
+    private static final String TEXTAREA_IMPLEMENTATION_NAME = "textarea";
+    private static final String RICHTEXTFX_IMPLEMENTATION_NAME = "richtextfx";
+    private static final Logger logger = LoggerFactory.getLogger(LogViewerApp.class);
     private ScheduledExecutorService executor;
 
     /**

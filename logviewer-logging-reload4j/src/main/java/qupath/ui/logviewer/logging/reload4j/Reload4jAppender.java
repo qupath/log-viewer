@@ -6,6 +6,7 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 
 class Reload4jAppender extends AppenderSkeleton {
+
     private final LoggerListener listener;
     private boolean isClosed = false;
 

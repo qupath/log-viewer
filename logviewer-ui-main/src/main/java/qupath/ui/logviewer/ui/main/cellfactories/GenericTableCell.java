@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  * It sets the text, tooltip and style of each cell.
  */
 public class GenericTableCell extends TableCell<LogMessage, LogMessage> {
+
     /**
      * The function indicating what information of LogMessage to display (and how)
      */
@@ -29,7 +30,7 @@ public class GenericTableCell extends TableCell<LogMessage, LogMessage> {
     /**
      * Maps each level to its lowercase name, used as style class
      */
-    private final static Map<Level, String> LEVEL_TO_NAME =
+    private static final Map<Level, String> LEVEL_TO_NAME =
             Arrays.stream(Level.values())
                     .collect(
                             Collectors.toMap(l -> l, l -> l.name().toLowerCase()));
@@ -37,7 +38,7 @@ public class GenericTableCell extends TableCell<LogMessage, LogMessage> {
     /**
      * The names of the levels, used as style classes
      */
-    private final static Set<String> LEVEL_NAMES = new HashSet<>(LEVEL_TO_NAME.values());
+    private static final Set<String> LEVEL_NAMES = new HashSet<>(LEVEL_TO_NAME.values());
 
 
     /**

@@ -18,6 +18,7 @@ import org.slf4j.event.Level;
  * so it can be added to any JavaFX parent.
  */
 public class RichTextFxLogViewer extends BorderPane implements LoggerListener {
+
     private static final StyleClassedTextArea textArea = new StyleClassedTextArea();
     private static final VirtualizedScrollPane<StyleClassedTextArea> scrollPane = new VirtualizedScrollPane<>(textArea);
 

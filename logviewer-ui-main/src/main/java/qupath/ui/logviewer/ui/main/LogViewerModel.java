@@ -9,6 +9,9 @@ import javafx.collections.*;
 import javafx.collections.transformation.FilteredList;
 import org.slf4j.event.Level;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -18,6 +21,7 @@ import java.util.function.Predicate;
  * so the controller can set their values and listen to changes.
  */
 class LogViewerModel implements LoggerListener {
+
     private final BooleanProperty loggingFrameworkFoundProperty = new SimpleBooleanProperty(false);
     private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList();
     private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);
@@ -60,9 +64,8 @@ class LogViewerModel implements LoggerListener {
      *
      * @return the current log level
      */
-    public String getRootLevel() {
-        Level rootLevel = loggerManager.getRootLogLevel();
-        return rootLevel == null ? "" : rootLevel.toString();
+    public Level getRootLevel() {
+        return loggerManager.getRootLogLevel();
     }
 
     /**
@@ -70,8 +73,8 @@ class LogViewerModel implements LoggerListener {
      *
      * @param level  the new current log level
      */
-    public void setRootLevel(String level) {
-        loggerManager.setRootLogLevel(Level.valueOf(level));
+    public void setRootLevel(Level level) {
+        loggerManager.setRootLogLevel(level);
     }
 
     /**
@@ -191,6 +194,27 @@ class LogViewerModel implements LoggerListener {
      */
     public ObservableSet<String> getAllThreads() {
         return allThreads;
+    }
+
+    /**
+     * Remove all current log messages
+     */
+    public void clearAllLogs() {
+        allLogs.clear();
+    }
+
+    /**
+     * Save all currently displayed logs to the given file.
+     *
+     * @param file  the file to save the logs to
+     * @throws FileNotFoundException when the file couldn't be written to
+     */
+    public void saveDisplayedLogsToFile(File file) throws FileNotFoundException {
+        try (PrintWriter writer = new PrintWriter(file)) {
+            for (LogMessage logMessage: filteredLogs) {
+                writer.println(logMessage.toReadableString());
+            }
+        }
     }
 
     private void setUpLoggerManager() {
