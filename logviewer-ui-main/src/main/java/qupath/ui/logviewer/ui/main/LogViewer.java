@@ -440,6 +440,8 @@ public class LogViewer extends BorderPane {
                 displayWarnButton.selectedProperty(), logViewerModel.getAllLogsMessageCounts().warnLevelCountsProperty()
         ));
 
+        warningsCount.managedProperty().bind(Bindings.notEqual(logViewerModel.getAllLogsMessageCounts().warnLevelCountsProperty(), 0));
+
         warningsCount.cursorProperty().bind(Bindings.when(logViewerModel.getFilteredLogsMessageCounts().warnLevelCountsProperty().isEqualTo(0))
                 .then(Cursor.DEFAULT)
                 .otherwise(Cursor.HAND));
@@ -463,6 +465,8 @@ public class LogViewer extends BorderPane {
                 displayErrorButton.selectedProperty(), logViewerModel.getAllLogsMessageCounts().errorLevelCountsProperty()
         ));
 
+        errorsCount.managedProperty().bind(Bindings.notEqual(logViewerModel.getAllLogsMessageCounts().errorLevelCountsProperty(), 0));
+
         errorsCount.cursorProperty().bind(Bindings.when(logViewerModel.getFilteredLogsMessageCounts().errorLevelCountsProperty().isEqualTo(0))
                 .then(Cursor.DEFAULT)
                 .otherwise(Cursor.HAND));
@@ -470,18 +474,16 @@ public class LogViewer extends BorderPane {
         shownCount.textProperty().bind(
                 Bindings.when(logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty().isEqualTo(logViewerModel.getAllLogsMessageCounts().allLevelCountsProperty()))
                         .then(Bindings.concat(
-                                " (",
                                 logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty(),
                                 " ",
-                                resources.getString("LogCount.total"), ")"
+                                resources.getString("LogCount.total")
                         ))
                         .otherwise(Bindings.concat(
-                                " (",
                                 logViewerModel.getFilteredLogsMessageCounts().allLevelCountsProperty(),
                                 "/",
                                 logViewerModel.getAllLogsMessageCounts().allLevelCountsProperty(),
                                 " ",
-                                resources.getString("LogCount.shown"), ")"
+                                resources.getString("LogCount.shown")
                         ))
         );
 
