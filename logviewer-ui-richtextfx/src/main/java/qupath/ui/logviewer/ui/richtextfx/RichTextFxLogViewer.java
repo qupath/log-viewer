@@ -21,21 +21,36 @@ public class RichTextFxLogViewer extends BorderPane implements LoggerListener {
 
     private static final StyleClassedTextArea textArea = new StyleClassedTextArea();
     private static final VirtualizedScrollPane<StyleClassedTextArea> scrollPane = new VirtualizedScrollPane<>(textArea);
+    private final LoggerManager loggerManager;
 
     /**
      * Create a new RichConsoleLogViewer.
      */
     public RichTextFxLogViewer() {
+        this(null);
+    }
+
+    /**
+     * Create a new RichConsoleLogViewer using the provided logger manager.
+     *
+     * @param loggerManager  the logger manager to use
+     */
+    public RichTextFxLogViewer(LoggerManager loggerManager) {
         super(scrollPane);
         getStylesheets().add(Objects.requireNonNull(getClass().getResource("css/styles.css")).toExternalForm());
 
         textArea.setEditable(false);
 
-        Optional<LoggerManager> loggerManagerOptional = getCurrentLoggerManager();
-        if (loggerManagerOptional.isPresent()) {
-            loggerManagerOptional.get().addListener(this);
+        if (loggerManager == null) {
+            this.loggerManager = LoggerManager.getCurrentLoggerManager().orElse(null);
         } else {
+            this.loggerManager = loggerManager;
+        }
+
+        if (this.loggerManager == null) {
             textArea.append("No logging manager found", levelToCssClass(Level.ERROR));
+        } else {
+            startLogging();
         }
     }
 
@@ -53,6 +68,39 @@ public class RichTextFxLogViewer extends BorderPane implements LoggerListener {
         } else {
             Platform.runLater(() -> addLogMessage(logMessage));
         }
+    }
+
+    /**
+     * Enable log messages to be redirected to this log viewer.
+     * This is enabled by default.
+     * @throws IllegalStateException when no logger manager is available
+     */
+    public void startLogging() {
+        if (loggerManager == null) {
+            throw new IllegalStateException("No logger manager found");
+        }
+
+        loggerManager.addListener(this);
+    }
+
+    /**
+     * Stop log messages to be redirected to this log viewer.
+     * @throws IllegalStateException when no logger manager is available
+     */
+    public void stopLogging() {
+        if (loggerManager == null) {
+            throw new IllegalStateException("No logger manager found");
+        }
+
+        loggerManager.removeListener(this);
+    }
+
+    /**
+     * @return the logger manager used by this log viewer, or an empty Optional
+     * if no logger manager is used
+     */
+    public Optional<LoggerManager> getLoggerManager() {
+        return Optional.ofNullable(loggerManager);
     }
 
     private String levelToCssClass(Level level) {

@@ -1,5 +1,6 @@
 package qupath.ui.logviewer.logging.reload4j;
 
+import org.apache.log4j.Appender;
 import qupath.ui.logviewer.api.listener.LoggerListener;
 import qupath.ui.logviewer.api.manager.LoggerManager;
 import org.apache.log4j.Logger;
@@ -7,18 +8,33 @@ import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Manager setting up and managing the Reload4j logger.
  */
 public class Reload4jManager implements LoggerManager {
 
     private static final Logger rootLogger = Logger.getRootLogger();
+    private static final Map<LoggerListener, Appender> appenders = new HashMap<>();
 
     @Override
     public void addListener(LoggerListener listener) {
-        var appender = new Reload4jAppender(listener);
-        appender.setName("LogViewer");
-        rootLogger.addAppender(appender);
+        if (!appenders.containsKey(listener)) {
+            Appender appender = new Reload4jAppender(listener);
+            appender.setName("LogViewer");
+            appenders.put(listener, appender);
+            rootLogger.addAppender(appender);
+        }
+    }
+
+    @Override
+    public void removeListener(LoggerListener listener) {
+        if (appenders.containsKey(listener)) {
+            Appender appender = appenders.remove(listener);
+            rootLogger.removeAppender(appender);
+        }
     }
 
     @Override

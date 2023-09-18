@@ -7,6 +7,7 @@ import javafx.scene.control.skin.VirtualFlow;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import qupath.ui.logviewer.api.LogMessage;
+import qupath.ui.logviewer.api.manager.LoggerManager;
 import qupath.ui.logviewer.ui.main.cellfactories.GenericTableCell;
 import qupath.ui.logviewer.ui.main.cellfactories.LogLevelTableCell;
 import qupath.ui.logviewer.ui.main.cellfactories.CompactTableCell;
@@ -102,7 +103,7 @@ public class LogViewer extends BorderPane {
     @FXML
     private Button copyButton;
     private final Collection<String> allLogLevelNamesToLowerCase = Arrays.stream(Level.values()).map(LogViewer::toStyleClass).toList();
-    private final LogViewerModel logViewerModel = new LogViewerModel();
+    private final LogViewerModel logViewerModel;
 
     /**
      * Maintain a cache of virtual flows, since they are awkward to access from the table view.
@@ -132,12 +133,52 @@ public class LogViewer extends BorderPane {
      * @throws IOException if an error occurs when loading the FXML file containing the UI
      */
     public LogViewer() throws IOException {
-        var url = getClass().getResource("log-viewer.fxml");
+        this(null);
+    }
 
+    /**
+     * Creates a new LogViewer using the provided logger manager.
+     *
+     * @param loggerManager  the logger manager to use
+     * @throws IOException if an error occurs when loading the FXML file containing the UI
+     */
+    public LogViewer(LoggerManager loggerManager) throws IOException {
+        logViewerModel = new LogViewerModel(loggerManager);
+
+        var url = getClass().getResource("log-viewer.fxml");
         FXMLLoader loader = new FXMLLoader(url, resources);
         loader.setRoot(this);
         loader.setController(this);
         loader.load();
+
+        startLogging();
+    }
+
+    /**
+     * Enable log messages to be redirected to this log viewer.
+     * This is enabled by default.
+     */
+    public void startLogging() {
+        if (logViewerModel.getLoggingFrameworkFoundProperty().get()) {
+            logViewerModel.startLogging();
+        }
+    }
+
+    /**
+     * Stop log messages to be redirected to this log viewer.
+     */
+    public void stopLogging() {
+        if (logViewerModel.getLoggingFrameworkFoundProperty().get()) {
+            logViewerModel.stopLogging();
+        }
+    }
+
+    /**
+     * @return the logger manager used by this log viewer, or an empty Optional
+     * if no logger manager is used
+     */
+    public Optional<LoggerManager> getLoggerManager() {
+        return logViewerModel.getLoggerManager();
     }
 
     /**
@@ -159,6 +200,26 @@ public class LogViewer extends BorderPane {
         return tableViewLog;
     }
 
+    /**
+     * Return the {@code LogMessageCounts} of all log messages.
+     * This includes filtered and non-filtered messages.
+     *
+     * @return the {@code LogMessageCounts} of all log messages.
+     */
+    public LogMessageCounts getAllLogsMessageCounts() {
+        return logViewerModel.getAllLogsMessageCounts();
+    }
+
+    /**
+     * Return the {@code LogMessageCounts} of filtered log messages.
+     * This only includes filtered messages.
+     *
+     * @return the {@code LogMessageCounts} of filtered log messages.
+     */
+    public LogMessageCounts getFilteredLogsMessageCounts() {
+        return logViewerModel.getFilteredLogsMessageCounts();
+    }
+
     @FXML
     private void initialize() {
         setUpDisplayedLogLevels();
@@ -170,7 +231,9 @@ public class LogViewer extends BorderPane {
 
     @FXML
     public void onMouseEnteredOnWindow(){
-        minimumLevel.getSelectionModel().select(logViewerModel.getRootLevel());
+        if (logViewerModel.getLoggingFrameworkFoundProperty().get()) {
+            minimumLevel.getSelectionModel().select(logViewerModel.getRootLevel());
+        }
     }
 
     @FXML
@@ -339,8 +402,10 @@ public class LogViewer extends BorderPane {
         );
 
         minimumLevel.getItems().addAll(Level.values());
-        minimumLevel.getSelectionModel().select(logViewerModel.getRootLevel());
-        minimumLevel.valueProperty().addListener(change -> logViewerModel.setRootLevel(minimumLevel.getValue()));
+        if (logViewerModel.getLoggingFrameworkFoundProperty().get()) {
+            minimumLevel.getSelectionModel().select(logViewerModel.getRootLevel());
+            minimumLevel.valueProperty().addListener(change -> logViewerModel.setRootLevel(minimumLevel.getValue()));
+        }
     }
 
     private void setUpMessageFilter() {

@@ -33,13 +33,29 @@ class LogViewerModel implements LoggerListener {
     private final ObservableSet<String> displayedThreads = FXCollections.observableSet();
     private final BooleanProperty displayAllThreadsProperty = new SimpleBooleanProperty(true);
     private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
-    private LoggerManager loggerManager;
+    private final LoggerManager loggerManager;
 
     /**
      * Creates a model with default values.
      */
     public LogViewerModel() {
-        setUpLoggerManager();
+        this(null);
+    }
+
+    /**
+     * Creates a model with default values and using the provided logger manager.
+     *
+     * @param loggerManager  the logger manager to use. If it is null, a new logger manager
+     *                       will be created
+     */
+    public LogViewerModel(LoggerManager loggerManager) {
+        if (loggerManager == null) {
+            this.loggerManager = LoggerManager.getCurrentLoggerManager().orElse(null);
+        } else {
+            this.loggerManager = loggerManager;
+        }
+        loggingFrameworkFoundProperty.set(this.loggerManager != null);
+
         setUpListeners();
         updateLogMessageFilter();
     }
@@ -60,11 +76,48 @@ class LogViewerModel implements LoggerListener {
     }
 
     /**
+     * Enable log messages to be redirected to this log viewer model.
+     * @throws IllegalStateException when no logger manager is available
+     */
+    public void startLogging() {
+        if (loggerManager == null) {
+            throw new IllegalStateException("No logger manager found");
+        }
+
+        loggerManager.addListener(this);
+    }
+
+    /**
+     * Stop log messages to be redirected to this log viewer model.
+     * @throws IllegalStateException when no logger manager is available
+     */
+    public void stopLogging() {
+        if (loggerManager == null) {
+            throw new IllegalStateException("No logger manager found");
+        }
+
+        loggerManager.removeListener(this);
+    }
+
+    /**
+     * @return the logger manager used by this log viewer model, or an empty Optional
+     * if no logger manager is used
+     */
+    public Optional<LoggerManager> getLoggerManager() {
+        return Optional.ofNullable(loggerManager);
+    }
+
+    /**
      * Get the current root log level.
      *
      * @return the current log level
+     * @throws IllegalStateException when no logger manager is available
      */
     public Level getRootLevel() {
+        if (loggerManager == null) {
+            throw new IllegalStateException("No logger manager found");
+        }
+
         return loggerManager.getRootLogLevel();
     }
 
@@ -72,8 +125,13 @@ class LogViewerModel implements LoggerListener {
      * Set the current log level.
      *
      * @param level  the new current log level
+     * @throws IllegalStateException when no logger manager is available
      */
     public void setRootLevel(Level level) {
+        if (loggerManager == null) {
+            throw new IllegalStateException("No logger manager found");
+        }
+
         loggerManager.setRootLogLevel(level);
     }
 
@@ -214,17 +272,6 @@ class LogViewerModel implements LoggerListener {
             for (LogMessage logMessage: filteredLogs) {
                 writer.println(logMessage.toReadableString());
             }
-        }
-    }
-
-    private void setUpLoggerManager() {
-        Optional<LoggerManager> loggerManagerOptional = getCurrentLoggerManager();
-
-        loggingFrameworkFoundProperty.set(loggerManagerOptional.isPresent());
-
-        if (loggerManagerOptional.isPresent()) {
-            loggerManager = loggerManagerOptional.get();
-            loggerManager.addListener(this);
         }
     }
 

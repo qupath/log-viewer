@@ -5,9 +5,9 @@ import qupath.ui.logviewer.api.listener.LoggerListener;
 import qupath.ui.logviewer.api.manager.LoggerManager;
 import javafx.application.Platform;
 
-import java.util.Optional;
-
 import javafx.scene.control.TextArea;
+
+import java.util.Optional;
 
 /**
  * UI controller of the application.
@@ -16,17 +16,33 @@ import javafx.scene.control.TextArea;
  */
 public class TextAreaLogViewer extends TextArea implements LoggerListener {
 
+    private final LoggerManager loggerManager;
+
     /**
      * Create a new ConsoleLogViewer.
      */
     public TextAreaLogViewer() {
+        this(null);
+    }
+
+    /**
+     * Create a new ConsoleLogViewer using the provided logger manager.
+     *
+     * @param loggerManager  the logger manager to use
+     */
+    public TextAreaLogViewer(LoggerManager loggerManager) {
         setEditable(false);
 
-        Optional<LoggerManager> loggerManagerOptional = getCurrentLoggerManager();
-        if (loggerManagerOptional.isPresent()) {
-            loggerManagerOptional.get().addListener(this);
+        if (loggerManager == null) {
+            this.loggerManager = LoggerManager.getCurrentLoggerManager().orElse(null);
         } else {
+            this.loggerManager = loggerManager;
+        }
+
+        if (this.loggerManager == null) {
             appendText("No logging manager found");
+        } else {
+            startLogging();
         }
     }
 
@@ -42,5 +58,38 @@ public class TextAreaLogViewer extends TextArea implements LoggerListener {
         } else {
             Platform.runLater(() -> addLogMessage(logMessage));
         }
+    }
+
+    /**
+     * Enable log messages to be redirected to this log viewer.
+     * This is enabled by default.
+     * @throws IllegalStateException when no logger manager is available
+     */
+    public void startLogging() {
+        if (loggerManager == null) {
+            throw new IllegalStateException("No logger manager found");
+        }
+
+        loggerManager.addListener(this);
+    }
+
+    /**
+     * Stop log messages to be redirected to this log viewer.
+     * @throws IllegalStateException when no logger manager is available
+     */
+    public void stopLogging() {
+        if (loggerManager == null) {
+            throw new IllegalStateException("No logger manager found");
+        }
+
+        loggerManager.removeListener(this);
+    }
+
+    /**
+     * @return the logger manager used by this log viewer, or an empty Optional
+     * if no logger manager is used
+     */
+    public Optional<LoggerManager> getLoggerManager() {
+        return Optional.ofNullable(loggerManager);
     }
 }

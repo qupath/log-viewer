@@ -4,7 +4,6 @@ import qupath.ui.logviewer.api.LogMessage;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Tooltip;
 import javafx.scene.shape.Circle;
 
 import java.util.function.Function;
