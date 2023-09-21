@@ -1,0 +1,21 @@
+plugins {
+    // Apply the Java library plugin to add support for building a library in Java.
+    id 'logviewer.java-conventions'
+    id 'logviewer.publishing-conventions'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+    // Use SLF4J as interface for any logging framework.
+    api libs.slf4j
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}

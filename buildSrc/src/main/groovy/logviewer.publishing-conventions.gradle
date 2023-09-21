@@ -1,0 +1,34 @@
+plugins {
+    id 'maven-publish'
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "SciJava"
+            def releasesRepoUrl = uri("https://maven.scijava.org/content/repositories/releases")
+            def snapshotsRepoUrl = uri("https://maven.scijava.org/content/repositories/snapshots")
+            // Use gradle -Prelease publish
+            url = project.hasProperty('release') ? releasesRepoUrl : snapshotsRepoUrl
+            credentials {
+                username = System.getenv("MAVEN_USER")
+                password = System.getenv("MAVEN_PASS")
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            pom {
+                licenses {
+                    license {
+                        name = 'Apache License v2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0'
+                    }
+                }
+            }
+        }
+    }
+}
