@@ -27,18 +27,18 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.text.Font?>
 
-<fx:root maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseEntered="#onMouseEnteredOnWindow" prefHeight="400.0" prefWidth="600.0" stylesheets="@css/styles.css" type="BorderPane" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseEntered="#onMouseEnteredOnWindow" stylesheets="@css/styles.css" type="BorderPane" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-      <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <BorderPane BorderPane.alignment="CENTER">
          <center>
-             <SplitPane dividerPositions="0.659919028340081" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" BorderPane.alignment="CENTER">
-                 <TableView fx:id="tableViewLog" prefHeight="200.0" prefWidth="200.0" styleClass="log-table" tableMenuButtonVisible="true">
+             <SplitPane dividerPositions="0.659919028340081" orientation="VERTICAL" BorderPane.alignment="CENTER">
+                 <TableView fx:id="tableViewLog" styleClass="log-table" tableMenuButtonVisible="true">
                      <columns>
                          <TableColumn fx:id="colRow" editable="false" maxWidth="50.0" prefWidth="30.0" sortable="false" text="#" visible="false" />
                          <TableColumn fx:id="colLevel" editable="false" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" sortable="false" />
-                         <TableColumn fx:id="colTimestamp" editable="false" maxWidth="120.0" prefWidth="85.5" sortable="false" text="%Table.time" />
-                         <TableColumn fx:id="colThread" editable="false" maxWidth="1.7976931348623157E308" prefWidth="90.0" sortable="false" text="%Table.thread" />
-                         <TableColumn fx:id="colLogger" editable="false" maxWidth="1.7976931348623157E308" prefWidth="90.0" sortable="false" text="%Table.logger" />
+                         <TableColumn fx:id="colTimestamp" editable="false" maxWidth="85.0" prefWidth="85.0" sortable="false" text="%Table.time" />
+                         <TableColumn fx:id="colThread" editable="false" maxWidth="1.7976931348623157E308" prefWidth="200.0" sortable="false" text="%Table.thread" />
+                         <TableColumn fx:id="colLogger" editable="false" maxWidth="1.7976931348623157E308" prefWidth="150.0" sortable="false" text="%Table.logger" />
                          <TableColumn fx:id="colMessage" editable="false" maxWidth="1.7976931348623157E308" prefWidth="400.0" sortable="false" styleClass="col-message" text="%Table.message" />
                      </columns>
                     <contextMenu>
@@ -52,11 +52,11 @@
                      <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                   </columnResizePolicy>
                  </TableView>
-                 <TextArea fx:id="textAreaLog" editable="false" prefHeight="200.0" prefWidth="200.0" styleClass="textAreaLog" />
+                 <TextArea fx:id="textAreaLog" editable="false" styleClass="textAreaLog" />
              </SplitPane>
          </center>
          <top>
-             <ToolBar maxWidth="1.7976931348623157E308" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+             <ToolBar maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
                  <ToggleButton fx:id="regexButton" mnemonicParsing="false" text=".*">
                   <tooltip>
                      <Tooltip fx:id="regexTooltip" />
@@ -125,7 +125,7 @@
        </MenuBar>
    </top>
    <bottom>
-      <HBox alignment="CENTER_LEFT" prefWidth="994.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER_LEFT" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
             <Label fx:id="warningsCount" onMousePressed="#onWarnCountClicked" styleClass="warn-counter">
                <cursor>

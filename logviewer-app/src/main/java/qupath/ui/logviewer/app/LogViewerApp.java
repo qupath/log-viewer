@@ -1,11 +1,11 @@
 package qupath.ui.logviewer.app;
 
+import javafx.scene.layout.Region;
 import qupath.ui.logviewer.ui.main.LogViewer;
 import qupath.ui.logviewer.ui.textarea.TextAreaLogViewer;
 import qupath.ui.logviewer.ui.richtextfx.RichTextFxLogViewer;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -68,7 +68,7 @@ public class LogViewerApp extends Application {
             System.exit(0);
         }
 
-        Parent app;
+        Region app;
         if (namedParameters.containsKey("app")) {
             app = switch (namedParameters.get("app")) {
                 case MAIN_IMPLEMENTATION_NAME -> new LogViewer();
@@ -82,7 +82,7 @@ public class LogViewerApp extends Application {
             app = new LogViewer();
             logger.warn("No application provided. Using log-viewer.");
         }
-        Scene scene = new Scene(app, 800, 600);
+        Scene scene = new Scene(app, app.getPrefWidth(), app.getPrefHeight());
         stage.setScene(scene);
         stage.show();
 
