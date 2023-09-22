@@ -32,7 +32,7 @@
       <BorderPane BorderPane.alignment="CENTER">
          <center>
              <SplitPane dividerPositions="0.659919028340081" orientation="VERTICAL" BorderPane.alignment="CENTER">
-                 <TableView fx:id="tableViewLog" styleClass="log-table" tableMenuButtonVisible="true">
+                 <TableView fx:id="tableViewLog" minHeight="-Infinity" minWidth="-Infinity" prefHeight="10.0" prefWidth="10.0" styleClass="log-table" tableMenuButtonVisible="true">
                      <columns>
                          <TableColumn fx:id="colRow" editable="false" maxWidth="50.0" prefWidth="30.0" sortable="false" text="#" visible="false" />
                          <TableColumn fx:id="colLevel" editable="false" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" sortable="false" />
@@ -61,7 +61,7 @@
                   <tooltip>
                      <Tooltip fx:id="regexTooltip" />
                   </tooltip></ToggleButton>
-                 <TextField fx:id="messageFilter" prefColumnCount="16" promptText="%Toolbar.Filter.filterByText" HBox.hgrow="ALWAYS" />
+                 <TextField fx:id="messageFilter" prefColumnCount="7" promptText="%Toolbar.Filter.filterByText" HBox.hgrow="ALWAYS" />
                  <HBox alignment="CENTER" spacing="3.0" styleClass="displayed-log-levels">
                      <ToggleButton fx:id="displayErrorButton" mnemonicParsing="false" onAction="#onDisplayedLogLevelsItemClicked" selected="true" text="ERROR">
                      <tooltip>
