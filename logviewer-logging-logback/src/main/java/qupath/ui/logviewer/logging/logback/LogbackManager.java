@@ -1,11 +1,16 @@
 package qupath.ui.logviewer.logging.logback;
 
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import qupath.ui.logviewer.api.listener.LoggerListener;
 import qupath.ui.logviewer.api.manager.LoggerManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Manager setting up and managing the Logback logger.
@@ -14,17 +19,29 @@ public class LogbackManager implements LoggerManager {
 
     private static final Logger slf4jLogger = LoggerFactory.getLogger(LogbackManager.class);
     private static final ch.qos.logback.classic.Logger logbackRootLogger = getRootLogger();
+    private static final Map<LoggerListener, Appender<ILoggingEvent>> appenders = new HashMap<>();
 
     @Override
     public void addListener(LoggerListener listener) {
-        if (logbackRootLogger != null) {
-            var appender = new LogbackAppender(listener);
-            appender.setName("LogViewer");
-            appender.setContext(logbackRootLogger.getLoggerContext());
-            appender.start();
-            logbackRootLogger.addAppender(appender);
-        } else {
-            slf4jLogger.warn("Cannot add appender to root logger using logback!");
+        if (!appenders.containsKey(listener)) {
+            if (logbackRootLogger != null) {
+                Appender<ILoggingEvent> appender = new LogbackAppender(listener);
+                appender.setName("LogViewer");
+                appender.setContext(logbackRootLogger.getLoggerContext());
+                appender.start();
+                appenders.put(listener, appender);
+                logbackRootLogger.addAppender(appender);
+            } else {
+                slf4jLogger.warn("Cannot add appender to root logger using logback!");
+            }
+        }
+    }
+
+    @Override
+    public void removeListener(LoggerListener listener) {
+        if (logbackRootLogger != null && appenders.containsKey(listener)) {
+            Appender<ILoggingEvent> appender = appenders.remove(listener);
+            logbackRootLogger.detachAppender(appender);
         }
     }
 

@@ -6,6 +6,9 @@ import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 /**
@@ -14,10 +17,23 @@ import java.util.logging.Logger;
 public class JdkManager implements LoggerManager {
 
     private static final Logger rootLogger = Logger.getLogger("");
+    private static final Map<LoggerListener, Handler> handlers = new HashMap<>();
 
     @Override
     public void addListener(LoggerListener listener) {
-        rootLogger.addHandler(new JdkHandler(listener));
+        if (!handlers.containsKey(listener)) {
+            Handler handler = new JdkHandler(listener);
+            handlers.put(listener, handler);
+            rootLogger.addHandler(handler);
+        }
+    }
+
+    @Override
+    public void removeListener(LoggerListener listener) {
+        if (handlers.containsKey(listener)) {
+            Handler handler = handlers.remove(listener);
+            rootLogger.removeHandler(handler);
+        }
     }
 
     @Override

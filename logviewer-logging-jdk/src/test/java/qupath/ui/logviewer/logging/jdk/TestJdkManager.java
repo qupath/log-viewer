@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import qupath.ui.logviewer.api.listener.LoggerListener;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -58,6 +59,20 @@ public class TestJdkManager {
         slf4jLogger.info("A log message");
 
         assertTrue(latch.await(100, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    void Check_Message_Not_Forwarded() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        JdkManager jdkManager = new JdkManager();
+        LoggerListener loggerListener = logMessage -> latch.countDown();
+        jdkManager.addListener(loggerListener);
+        jdkManager.setRootLogLevel(Level.TRACE);
+        jdkManager.removeListener(loggerListener);
+
+        slf4jLogger.info("A log message");
+
+        assertFalse(latch.await(100, TimeUnit.MILLISECONDS));
     }
 
     @Test

@@ -4,6 +4,9 @@ import qupath.ui.logviewer.api.LogMessage;
 import qupath.ui.logviewer.api.listener.LoggerListener;
 import org.slf4j.event.Level;
 
+import java.util.Optional;
+import java.util.ServiceLoader;
+
 /**
  * Interface for logging frameworks.
  */
@@ -16,6 +19,13 @@ public interface LoggerManager {
      * @param listener  the listener which will receive the logged messages
      */
     void addListener(LoggerListener listener);
+
+    /**
+     * Stop forwarding log messages to the provided logger listener.
+     *
+     * @param listener  the listener which will stop receiving the logged messages
+     */
+    void removeListener(LoggerListener listener);
 
     /**
      * Set the log level of the root logger.
@@ -37,4 +47,21 @@ public interface LoggerManager {
      * @return true if this logging framework is used by SLF4J
      */
     boolean isFrameworkActive();
+
+    /**
+     * Get the logger manager chosen by SLF4J.
+     *
+     * @return the logger manager chosen by SLF4J or an empty optional if no logger has been found
+     */
+    static Optional<LoggerManager> getCurrentLoggerManager() {
+        ServiceLoader<LoggerManager> serviceLoader = ServiceLoader.load(LoggerManager.class);
+
+        for (LoggerManager loggerManager : serviceLoader) {
+            if (loggerManager.isFrameworkActive()) {
+                return Optional.of(loggerManager);
+            }
+        }
+
+        return Optional.empty();
+    }
 }
