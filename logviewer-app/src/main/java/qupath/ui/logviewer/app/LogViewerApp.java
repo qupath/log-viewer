@@ -82,9 +82,14 @@ public class LogViewerApp extends Application {
             app = new LogViewer();
             logger.warn("No application provided. Using log-viewer.");
         }
-        Scene scene = new Scene(app, app.getPrefWidth(), app.getPrefHeight());
+
+
+        Scene scene = new Scene(app);
         stage.setScene(scene);
         stage.show();
+
+        stage.setMinWidth(app.getWidth());
+        stage.setMinHeight(app.getHeight());
 
         if (parameters.getRaw().contains("-t") || parameters.getRaw().contains("--test")) {
             logger.info("Here's my first log message, for information");
