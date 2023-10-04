@@ -145,7 +145,7 @@ public class LogViewer extends BorderPane {
     public LogViewer(LoggerManager loggerManager) throws IOException {
         logViewerModel = new LogViewerModel(loggerManager);
 
-        var url = getClass().getResource("log-viewer.fxml");
+        var url = LogViewer.class.getResource("log-viewer.fxml");
         FXMLLoader loader = new FXMLLoader(url, resources);
         loader.setRoot(this);
         loader.setController(this);

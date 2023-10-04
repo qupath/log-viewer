@@ -37,7 +37,7 @@ public class RichTextFxLogViewer extends BorderPane implements LoggerListener {
      */
     public RichTextFxLogViewer(LoggerManager loggerManager) {
         super(scrollPane);
-        getStylesheets().add(Objects.requireNonNull(getClass().getResource("css/styles.css")).toExternalForm());
+        getStylesheets().add(Objects.requireNonNull(RichTextFxLogViewer.class.getResource("css/styles.css")).toExternalForm());
 
         textArea.setEditable(false);
 
