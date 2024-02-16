@@ -75,7 +75,7 @@
     -fx-text-fill: warn;
 }
 
-/* Copy button */
-.copy-button {
+/* Buttons in the bottom-right corner */
+.bottom-buttons {
     -fx-font-size: 10;
 }
