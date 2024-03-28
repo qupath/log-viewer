@@ -278,6 +278,11 @@ public class LogViewer extends BorderPane {
     }
 
     @FXML
+    private void selectAllMessages() {
+        tableViewLog.getSelectionModel().selectAll();
+    }
+
+    @FXML
     private void clearLogs() {
         logViewerModel.clearAllLogs();
     }
