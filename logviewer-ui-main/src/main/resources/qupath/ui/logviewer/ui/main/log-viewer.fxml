@@ -149,7 +149,7 @@
             </Label>
             <Button fx:id="clearLogsButton" mnemonicParsing="false" onAction="#clearLogs" styleClass="bottom-buttons" text="%LogCount.clearLogs">
                <tooltip>
-                  <Tooltip text="%LogCount.selectAllMessages" />
+                  <Tooltip text="%LogCount.clearLogsFromViewer" />
                </tooltip>
                <padding>
                   <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
