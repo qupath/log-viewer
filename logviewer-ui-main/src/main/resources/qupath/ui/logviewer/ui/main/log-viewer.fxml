@@ -113,7 +113,10 @@
                        <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
                    </accelerator>
                </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#clearLogs" text="%Action.Edit.clear" />
+            <MenuItem mnemonicParsing="false" onAction="#clearLogs" text="%Action.Edit.clear">
+               <accelerator>
+                  <KeyCodeCombination alt="UP" code="K" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+               </accelerator></MenuItem>
            </Menu>
            <Menu fx:id="threadFilterMenu" mnemonicParsing="false" text="%Menu.Thread">
                <RadioMenuItem fx:id="allThreadsItem" mnemonicParsing="false" onAction="#onThreadItemSelected" selected="true" text="%Action.Thread.allThreads">
@@ -144,6 +147,14 @@
                   <Font name="System Bold" size="13.0" />
                </font>
             </Label>
+            <Button fx:id="clearLogsButton" mnemonicParsing="false" onAction="#clearLogs" styleClass="bottom-buttons" text="%LogCount.clearLogs">
+               <tooltip>
+                  <Tooltip text="%LogCount.clearLogsFromViewer" />
+               </tooltip>
+               <padding>
+                  <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+               </padding>
+            </Button>
             <Button mnemonicParsing="false" onAction="#selectAllMessages" styleClass="bottom-buttons" text="%LogCount.selectAll">
                <tooltip>
                   <Tooltip text="%LogCount.selectAllMessages" />
