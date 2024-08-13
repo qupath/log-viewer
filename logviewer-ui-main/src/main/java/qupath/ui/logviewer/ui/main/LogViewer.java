@@ -101,6 +101,8 @@ public class LogViewer extends BorderPane {
     @FXML
     private Label status;
     @FXML
+    private Button clearLogsButton;
+    @FXML
     private Button copyButton;
     private final Collection<String> allLogLevelNamesToLowerCase = Arrays.stream(Level.values()).map(LogViewer::toStyleClass).toList();
     private final LogViewerModel logViewerModel;
@@ -556,6 +558,11 @@ public class LogViewer extends BorderPane {
                                 resources.getString("LogCount.shown")
                         ))
         );
+
+        clearLogsButton.disableProperty().bind(Bindings.equal(
+                Bindings.size(tableViewLog.getItems()),
+                0
+        ));
 
         copyButton.disableProperty().bind(Bindings.equal(
                 Bindings.size(tableViewLog.getSelectionModel().getSelectedItems()),
