@@ -579,7 +579,12 @@ public class LogViewer extends BorderPane {
             RadioMenuItem item = new RadioMenuItem(threadName);
             item.setOnAction(this::onThreadItemSelected);
             item.setToggleGroup(threadFilterGroup);
-            threadFilterMenu.getItems().add(item);
+
+            // Create a new list instead of simply adding the item is a workaround for
+            // https://github.com/qupath/log-viewer/issues/70
+            var newItems = new ArrayList<>(threadFilterMenu.getItems());
+            newItems.add(item);
+            threadFilterMenu.getItems().setAll(newItems);
         });
     }
 
