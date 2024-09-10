@@ -284,7 +284,13 @@ class LogViewerModel implements LoggerListener {
         allLogs.addListener((ListChangeListener<? super LogMessage>) change -> {
             while (change.next()) {
                 if (change.wasAdded()) {
-                    allThreads.addAll(change.getAddedSubList().stream().map(LogMessage::threadName).toList());
+                    // Use loop rather than collecting names and using 'addAll' to reduce overhead.
+                    // We expect this to be called often, the name is usually in the set already,
+                    // and observable sets don't seem to support batch updates anyway
+                    // ('addAll' seems to just call 'add' in a loop)
+                    for (var item : change.getAddedSubList()) {
+                        allThreads.add(item.threadName());
+                    }
                 }
             }
         });
