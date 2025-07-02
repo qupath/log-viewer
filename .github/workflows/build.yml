@@ -15,3 +15,9 @@ permissions:
 jobs:
   build:
     uses: qupath/actions/.github/workflows/gradle.yml@main
+    with:
+      platform: ${{ matrix.platform }}
+      build-tool: ${{ matrix.platform == 'ubuntu-latest' && 'xfvb-run ./gradlew' || './gradlew' }}
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
