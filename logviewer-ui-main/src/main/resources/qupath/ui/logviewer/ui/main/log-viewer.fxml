@@ -32,7 +32,7 @@
       <BorderPane BorderPane.alignment="CENTER">
          <center>
              <SplitPane dividerPositions="0.659919028340081" orientation="VERTICAL" BorderPane.alignment="CENTER">
-                 <TableView fx:id="tableViewLog" minHeight="-Infinity" minWidth="-Infinity" prefHeight="10.0" prefWidth="10.0" styleClass="log-table" tableMenuButtonVisible="true">
+                 <TableView fx:id="tableViewLog" minHeight="100.0" minWidth="-Infinity" prefHeight="10.0" prefWidth="10.0" styleClass="log-table" tableMenuButtonVisible="true">
                      <columns>
                          <TableColumn fx:id="colRow" editable="false" maxWidth="50.0" prefWidth="30.0" sortable="false" text="#" visible="false" />
                          <TableColumn fx:id="colLevel" editable="false" maxWidth="25.0" minWidth="25.0" prefWidth="25.0" sortable="false" />
