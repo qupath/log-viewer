@@ -42,7 +42,7 @@ class LogViewerModel implements LoggerListener {
     private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
     private final LoggerManager loggerManager;
 
-    private boolean flushBufferRequested = false;
+    private volatile boolean flushBufferRequested = false;
 
     /**
      * Creates a model with default values.
