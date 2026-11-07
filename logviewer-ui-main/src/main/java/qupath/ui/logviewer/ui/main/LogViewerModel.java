@@ -1,5 +1,6 @@
 package qupath.ui.logviewer.ui.main;
 
+import javafx.animation.AnimationTimer;
 import qupath.ui.logviewer.api.LogMessage;
 import qupath.ui.logviewer.api.listener.LoggerListener;
 import qupath.ui.logviewer.api.manager.LoggerManager;
@@ -12,7 +13,13 @@ import org.slf4j.event.Level;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 
 /**
@@ -22,14 +29,23 @@ import java.util.function.Predicate;
  */
 class LogViewerModel implements LoggerListener {
 
+    private final AnimationTimer timer = new AnimationTimer() {
+        @Override
+        public void handle(long now) {
+            allLogs.sync();
+            allThreads.sync();
+        }
+    };
+
+    private final ObservableListManager<LogMessage> allLogs = new ObservableListManager<>(FXCollections.observableArrayList());
+    private final ObservableSetManager<String> allThreads = new ObservableSetManager<>(FXCollections.observableSet(new TreeSet<>()));
+
     private final BooleanProperty loggingFrameworkFoundProperty = new SimpleBooleanProperty(false);
-    private final ObservableList<LogMessage> allLogs = FXCollections.observableArrayList();
-    private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs);
-    private final LogMessageCounts allLogsMessageCounts = new LogMessageCounts(allLogs);
+    private final FilteredList<LogMessage> filteredLogs = new FilteredList<>(allLogs.getObservableList());
+    private final LogMessageCounts allLogsMessageCounts = new LogMessageCounts(allLogs.getObservableList());
     private final LogMessageCounts filteredLogsMessageCounts = new LogMessageCounts(filteredLogs);
     private final BooleanProperty filterByRegexProperty = new SimpleBooleanProperty(false);
     private final StringProperty filterProperty = new SimpleStringProperty("");
-    private final ObservableSet<String> allThreads = FXCollections.observableSet();
     private final ObservableSet<String> displayedThreads = FXCollections.observableSet();
     private final BooleanProperty displayAllThreadsProperty = new SimpleBooleanProperty(true);
     private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
@@ -68,11 +84,8 @@ class LogViewerModel implements LoggerListener {
      */
     @Override
     public void addLogMessage(LogMessage logMessage) {
-        if (Platform.isFxApplicationThread()) {
-            allLogs.add(logMessage);
-        } else {
-            Platform.runLater(() -> addLogMessage(logMessage));
-        }
+        allLogs.add(logMessage);
+        allThreads.add(logMessage.threadName());
     }
 
     /**
@@ -83,7 +96,7 @@ class LogViewerModel implements LoggerListener {
         if (loggerManager == null) {
             throw new IllegalStateException("No logger manager found");
         }
-
+        timer.start();
         loggerManager.addListener(this);
     }
 
@@ -95,8 +108,8 @@ class LogViewerModel implements LoggerListener {
         if (loggerManager == null) {
             throw new IllegalStateException("No logger manager found");
         }
-
         loggerManager.removeListener(this);
+        timer.stop();
     }
 
     /**
@@ -251,7 +264,7 @@ class LogViewerModel implements LoggerListener {
      * @return an {@code ObservableSet} containing all thread names
      */
     public ObservableSet<String> getAllThreads() {
-        return allThreads;
+        return allThreads.getObservableSet();
     }
 
     /**
@@ -281,21 +294,7 @@ class LogViewerModel implements LoggerListener {
         displayedLogLevels.addListener((SetChangeListener<? super Level>) _ -> updateLogMessageFilter());
         displayedThreads.addListener((SetChangeListener<? super String>) _ -> updateLogMessageFilter());
 
-        allLogs.addListener((ListChangeListener<? super LogMessage>) change -> {
-            while (change.next()) {
-                if (change.wasAdded()) {
-                    // Use loop rather than collecting names and using 'addAll' to reduce overhead.
-                    // We expect this to be called often, the name is usually in the set already,
-                    // and observable sets don't seem to support batch updates anyway
-                    // ('addAll' seems to just call 'add' in a loop)
-                    for (var item : change.getAddedSubList()) {
-                        allThreads.add(item.threadName());
-                    }
-                }
-            }
-        });
-
-        allThreads.addListener((SetChangeListener<? super String>) change -> {
+        getAllThreads().addListener((SetChangeListener<? super String>) change -> {
             if (change.wasAdded() && displayAllThreadsProperty.get()) {
                 displayedThreads.add(change.getElementAdded());
             }
@@ -305,7 +304,7 @@ class LogViewerModel implements LoggerListener {
 
         displayAllThreadsProperty.addListener(_ -> {
             if (displayAllThreadsProperty.get()) {
-                displayedThreads.addAll(allThreads);
+                displayedThreads.addAll(getAllThreads());
             }
         });
     }
@@ -321,4 +320,111 @@ class LogViewerModel implements LoggerListener {
                 )
         );
     }
+
+    /**
+     * Wrapper for an observable list to manage a buffer of add or clear events
+     * made from threads other than the JavaFX application thread,
+     * ensuring that they are applied to the list only on the next update from
+     * the application thread or after an explicit call to {@code sync()}.
+     * @param <T> generic parameter for list contents
+     */
+    private static class ObservableListManager<T> {
+
+        private final ObservableList<T> observableList;
+        private final List<T> buffer = new ArrayList<>();
+        private volatile boolean clearOnSync = false;
+
+        ObservableListManager(ObservableList<T> observableList) {
+            Objects.requireNonNull(observableList);
+            this.observableList = observableList;
+        }
+
+        synchronized void add(T item) {
+            buffer.add(item);
+            if (Platform.isFxApplicationThread()) {
+                sync();
+            }
+        }
+
+        synchronized void clear() {
+            buffer.clear();
+            clearOnSync = true;
+            if (Platform.isFxApplicationThread()) {
+                sync();
+            }
+        }
+
+        void sync() {
+            if (buffer.isEmpty() && !clearOnSync) {
+                return;
+            }
+            synchronized (this) {
+                if (clearOnSync) {
+                    observableList.clear();
+                    clearOnSync = false;
+                }
+                observableList.addAll(buffer);
+                buffer.clear();
+            }
+        }
+
+        public ObservableList<T> getObservableList() {
+            return observableList;
+        }
+
+    }
+
+    /**
+     * Wrapper for an observable set to manage a buffer of add or clear events
+     * made from threads other than the JavaFX application thread,
+     * ensuring that they are applied to the set only on the next update from
+     * the application thread or after an explicit call to {@code sync()}.
+     * @param <T> generic parameter for set contents
+     */
+    private static class ObservableSetManager<T> {
+
+        private final ObservableSet<T> observableSet;
+        private final Set<T> buffer = new LinkedHashSet<>();
+        private boolean clearOnSync = false;
+
+        ObservableSetManager(ObservableSet<T> observableSet) {
+            Objects.requireNonNull(observableSet);
+            this.observableSet = observableSet;
+        }
+
+        synchronized void add(T item) {
+            buffer.add(item);
+            if (Platform.isFxApplicationThread()) {
+                sync();
+            }
+        }
+
+        synchronized void clear() {
+            buffer.clear();
+            clearOnSync = true;
+            if (Platform.isFxApplicationThread()) {
+                sync();
+            }
+        }
+
+        void sync() {
+            if (buffer.isEmpty() && !clearOnSync) {
+                return;
+            }
+            synchronized (this) {
+                if (clearOnSync) {
+                    observableSet.clear();
+                    clearOnSync = false;
+                }
+                observableSet.addAll(buffer);
+                buffer.clear();
+            }
+        }
+
+        public ObservableSet<T> getObservableSet() {
+            return observableSet;
+        }
+
+    }
+
 }
