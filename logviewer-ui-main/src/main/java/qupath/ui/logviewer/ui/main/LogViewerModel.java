@@ -1,6 +1,5 @@
 package qupath.ui.logviewer.ui.main;
 
-import javafx.animation.AnimationTimer;
 import qupath.ui.logviewer.api.LogMessage;
 import qupath.ui.logviewer.api.listener.LoggerListener;
 import qupath.ui.logviewer.api.manager.LoggerManager;
@@ -29,14 +28,6 @@ import java.util.function.Predicate;
  */
 class LogViewerModel implements LoggerListener {
 
-    private final AnimationTimer timer = new AnimationTimer() {
-        @Override
-        public void handle(long now) {
-            allLogs.sync();
-            allThreads.sync();
-        }
-    };
-
     private final ObservableListManager<LogMessage> allLogs = new ObservableListManager<>(FXCollections.observableArrayList());
     private final ObservableSetManager<String> allThreads = new ObservableSetManager<>(FXCollections.observableSet(new TreeSet<>()));
 
@@ -50,6 +41,8 @@ class LogViewerModel implements LoggerListener {
     private final BooleanProperty displayAllThreadsProperty = new SimpleBooleanProperty(true);
     private final ObservableSet<Level> displayedLogLevels = FXCollections.observableSet(Level.values());
     private final LoggerManager loggerManager;
+
+    private boolean flushBufferRequested = false;
 
     /**
      * Creates a model with default values.
@@ -83,9 +76,26 @@ class LogViewerModel implements LoggerListener {
      * @param logMessage  the log message to add
      */
     @Override
-    public void addLogMessage(LogMessage logMessage) {
+    public synchronized void addLogMessage(LogMessage logMessage) {
         allLogs.add(logMessage);
         allThreads.add(logMessage.threadName());
+        if (!flushBufferRequested) {
+            if (Platform.isFxApplicationThread()) {
+                flushBuffers();
+            } else {
+                flushBufferRequested = true;
+                Platform.runLater(this::flushBuffers);
+            }
+        }
+    }
+
+    private void flushBuffers() {
+        if (!Platform.isFxApplicationThread()) {
+            throw new UnsupportedOperationException("flushBuffers can only be called from the JavaFX Application Thread");
+        }
+        flushBufferRequested = false;
+        allLogs.sync();
+        allThreads.sync();
     }
 
     /**
@@ -96,7 +106,6 @@ class LogViewerModel implements LoggerListener {
         if (loggerManager == null) {
             throw new IllegalStateException("No logger manager found");
         }
-        timer.start();
         loggerManager.addListener(this);
     }
 
@@ -109,8 +118,8 @@ class LogViewerModel implements LoggerListener {
             throw new IllegalStateException("No logger manager found");
         }
         loggerManager.removeListener(this);
-        timer.stop();
     }
+
 
     /**
      * @return the logger manager used by this log viewer model, or an empty Optional
