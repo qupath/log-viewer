@@ -79,13 +79,11 @@ class LogViewerModel implements LoggerListener {
     public synchronized void addLogMessage(LogMessage logMessage) {
         allLogs.add(logMessage);
         allThreads.add(logMessage.threadName());
-        if (!flushBufferRequested) {
-            if (Platform.isFxApplicationThread()) {
-                flushBuffers();
-            } else {
-                flushBufferRequested = true;
-                Platform.runLater(this::flushBuffers);
-            }
+        if (Platform.isFxApplicationThread()) {
+            flushBuffers();
+        } else if (!flushBufferRequested) {
+            flushBufferRequested = true;
+            Platform.runLater(this::flushBuffers);
         }
     }
 
